@@ -1,0 +1,14 @@
+define(["app", "apps/contacts/common/views"], function(ContactManager, CommonViews) {
+  ContactManager.module("ContactsApp.New", function(New, ContactManager,
+  Backbone, Marionette, $, _){
+    New.Contact = CommonViews.Form.extend({
+      title: "New Contact",
+
+      onRender: function() {
+        this.$(".js-submit").text("Create contact");
+      }
+    });
+  });
+
+  return ContactManager.ContactsApp.New;
+});
