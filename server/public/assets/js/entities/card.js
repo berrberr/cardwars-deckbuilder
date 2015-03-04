@@ -1,4 +1,4 @@
-define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $) {
+define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $, _) {
 
   // All deck related entities
   var Entities = {};
@@ -22,7 +22,13 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $)
 
   Entities.CardCollection = Backbone.Collection.extend({
     url: "cards",
-    model: Entities.Card
+    model: Entities.Card,
+
+    byColor: function(color) {
+      if(color === "All") return this.models;
+
+      return this.where({ color: color });
+    }
   });
 
   var API = {
@@ -30,8 +36,17 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $)
       var cards = new Entities.CardCollection();
       var defer = $.Deferred();
       cards.fetch({
-        success: function(data) {
-          defer.resolve(data);
+        success: function(cards) {
+          // var colorSeperatedCards = {
+          //   All: cards,
+          //   BluePlains: new Backbone.Collection(cards.where({ color: "Blue Plains" })),
+          //   Cornfield: new Backbone.Collection(cards.where({ color: "Cornfield" })),
+          //   NiceLands: cards.where({ color: "NiceLands" }),
+          //   Rainbow: cards.where({ color: "Rainbow" }),
+          //   SandyLands: cards.where({ color: "SandyLands" }),
+          //   UselessSwamp: cards.where({ color: "Useless Swamp" })
+          // };
+          defer.resolve(cards);
         },
         error: function() {
           defer.resolve(undefined);

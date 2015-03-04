@@ -1,2 +1,2 @@
-<div id="region-cards"></div>
-<div id="region-deck"></div>
+<div id="cards-region"></div>
+<div id="deck-region"></div>
