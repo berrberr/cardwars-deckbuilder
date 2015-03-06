@@ -1,8 +1,10 @@
 define(["app",
         "tpl!apps/builder/edit/templates/layout.tpl",
         "tpl!apps/builder/edit/templates/card_list.tpl",
-        "tpl!apps/builder/edit/templates/card.tpl"],
-      function(CWApp, layoutTpl, cardListTpl, cardTpl) {
+        "tpl!apps/builder/edit/templates/card.tpl",
+        "tpl!apps/builder/edit/templates/deck_list.tpl",
+        "tpl!apps/builder/edit/templates/deck_list_item.tpl"],
+      function(CWApp, layoutTpl, cardListTpl, cardTpl, deckListTpl, deckListItemTpl) {
   CWApp.module("BuilderApp.Edit", function(Edit, CWApp, 
           Backbone, Marionette, $, _) {
 
@@ -17,8 +19,11 @@ define(["app",
 
     Edit.Card = Marionette.ItemView.extend({
       template: cardTpl,
+      tagName: "td",
 
-      tagName: "td"
+      triggers: {
+        "click img": "deck:card:add"
+      }
     });
 
     Edit.CardList = Marionette.CompositeView.extend({
@@ -26,14 +31,23 @@ define(["app",
       childView: Edit.Card,
       childViewContainer: "tbody",
 
+      triggers: {
+        "click #next-page": "cards:page:next",
+        "click #previous-page": "cards:page:previous"
+      },
+
       events: {
         "click #colors a": "colorChange"
       },
 
       colorChange: function(e) {
         e.preventDefault();
-        console.log("color change called", e.target);
-        this.trigger("color:change", e.target.getAttribute("data-color"));
+        if(e.target.getAttribute("data-color") === "All") {
+          this.trigger("cards:color:reset");
+        }
+        else {
+          this.trigger("cards:color:change", e.target.getAttribute("data-color"));
+        }
       },
 
       attachHtml: function(collectionView, childView, index) {
@@ -48,6 +62,25 @@ define(["app",
         console.log("were rendering", this.collection);
       }
 
+    });
+
+    Edit.DeckListItem = Marionette.ItemView.extend({
+      template: deckListItemTpl,
+      tagName: "li",
+
+      triggers: {
+        "click span.remove": "deck:card:remove"
+      }
+    });
+
+    Edit.DeckList = Marionette.CompositeView.extend({
+      template: deckListTpl,
+      childView: Edit.DeckListItem,
+      childViewContainer: "ul",
+
+      triggers: {
+        "click #save-deck": "deck:save"
+      }
     });
   });
 

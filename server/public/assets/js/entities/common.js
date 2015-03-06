@@ -1,83 +1,84 @@
-define(["app"], function(ContactManager) {
-  ContactManager.module("Entities", function(Entities, ContactManager,
-  Backbone, Marionette, $, _) {
-    Entities.FilteredCollection = function(options) {
-      var original = options.collection;
-      var filtered = new original.constructor();
-      filtered.add(original.models);
-      filtered.filterFunction = options.filterFunction;
+define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $, _) {
 
-      var applyFilter = function(filterCriterion, filterStrategy, collection) {
-        var coll = collection || original;
-        var criterion;
+  var Entities = {};
+
+  Entities.FilteredCollection = function(options) {
+    var original = options.collection;
+    var pageSize = options.pageSize || 2;
+    var filtered = new original.constructor();
+    filtered.add(original.models);
+    filtered.filterFunction = options.filterFunction;
+
+    var applyFilter = function(filterCriterion, filterStrategy, collection) {
+      var coll = collection || original;
+      var criterion;
+      if(filterStrategy == "filter") {
+        criterion = filterCriterion.trim();
+      } else {
+        criterion = filterCriterion;
+      }
+
+      var items = [];
+      if(criterion) {
         if(filterStrategy == "filter") {
-          criterion = filterCriterion.trim();
-        } else {
-          criterion = filterCriterion;
-        }
-
-        var items = [];
-        if(criterion) {
-          if(filterStrategy == "filter") {
-            if(!filtered.filterFunction) {
-              throw("Attempted to use 'filter' function, but none was defined");
-            }
-            var filterFunction = filtered.filterFunction(criterion);
-            items = coll.filter(filterFunction);
-          } else {
-            items = coll.where(criterion);
+          if(!filtered.filterFunction) {
+            throw("Attempted to use 'filter' function, but none was defined");
           }
+          var filterFunction = filtered.filterFunction(criterion);
+          items = coll.filter(filterFunction);
         } else {
-          items = coll.models;
+          items = coll.where(criterion);
         }
+      } else {
+        items = coll.models;
+      }
 
-        // store current criterion on filtered object
-        filtered._currentCriterion = criterion;
+      // store current criterion on filtered object
+      filtered._currentCriterion = criterion;
 
-        return items;
-      };
+      return items;
+    };
 
-      filtered.filter = function(filterCriterion) {
-        filtered._currentFilter = "filter";
-        var items = applyFilter(filterCriterion, "filter");
+    filtered.filter = function(filterCriterion) {
+      filtered._currentFilter = "filter";
+      var items = applyFilter(filterCriterion, "filter");
 
-        filtered.reset(items);
-        return filtered;
-      };
-
-      filtered.where = function(filterCriterion) {
-        filtered._currentFilter = "where";
-        var items = applyFilter(filterCriterion, "where");
-
-        filtered.reset(items);
-        return filtered;
-      };
-
-      // when the original collection is reset,
-      // the filtered collection will re-filter itself
-      // and end up with the new filtered result set
-      original.on("reset", function() {
-        var items = applyFilter(filtered._currentCriterion, filtered._currentFilter);
-
-        // reset the filtered collection with new items
-        filtered.reset(items);
-      });
-
-      // if the original collection gets models added to it:
-      // 1. create a new collection
-      // 2. filter it
-      // 3. add the filtered models (i.e. the models that were added *and*
-      // match the filtering criterion) to the `filtered` collection
-      original.on("add", function(models) {
-        var coll = new original.constructor();
-        coll.add(models);
-        var items = applyFilter(filtered._currentCriterion, filtered._currentFilter, coll);
-        filtered.add(items);
-      });
-
+      filtered.reset(items);
       return filtered;
     };
-  });
+
+    filtered.where = function(filterCriterion) {
+      filtered._currentFilter = "where";
+      var items = applyFilter(filterCriterion, "where");
+
+      filtered.reset(items);
+      return filtered;
+    };
+
+    // when the original collection is reset,
+    // the filtered collection will re-filter itself
+    // and end up with the new filtered result set
+    original.on("reset", function() {
+      var items = applyFilter(filtered._currentCriterion, filtered._currentFilter);
+
+      // reset the filtered collection with new items
+      filtered.reset(items);
+    });
+
+    // if the original collection gets models added to it:
+    // 1. create a new collection
+    // 2. filter it
+    // 3. add the filtered models (i.e. the models that were added *and*
+    // match the filtering criterion) to the `filtered` collection
+    original.on("add", function(models) {
+      var coll = new original.constructor();
+      coll.add(models);
+      var items = applyFilter(filtered._currentCriterion, filtered._currentFilter, coll);
+      filtered.add(items);
+    });
+
+    return filtered;
+  };
   
-  return ContactManager.Entities;
+  return Entities;
 });

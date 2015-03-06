@@ -49,6 +49,7 @@ module.exports = function(grunt) {
           "underscore-tpl.js": "requirejs-underscore-tpl/underscore-tpl.js",
           "json2.js": "json2/json2.js",
           "backbone.js": "backbone/backbone.js",
+          "backbone.obscura.js": "backbone.obscura/backbone.obscura.js",
           "backbone.localStorage.js": "Backbone.localStorage/backbone.localStorage.js",
           "backbone.marionette.js": "marionette/lib/backbone.marionette.js",
           "bootstrap.js": "bootstrap-sass-official/assets/javascripts/bootstrap.js",

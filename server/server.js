@@ -4,6 +4,8 @@ var app = express(),
     bodyParser = require("body-parser"),
     mongo = require("mongoskin");
 
+ObjectID = mongo.ObjectID;
+
 var db = mongo.db("mongodb://@localhost:27017/cardwars");
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -23,6 +25,30 @@ app.get("/decks/:id?", function(req, res) {
   }
 });
 
+app.put("/decks/:id", function(req, res) {
+  console.log(req.body);
+  if(req.body && req.body._id && req.body.name && req.body.author_id && req.body.cards) {
+    db.collection("decks").update({ _id: ObjectID(req.body._id) }, {
+      name: req.body.name,
+      author_id: req.body.author_id,
+      cards: req.body.cards
+    }, function(err, result) {
+      console.log(err);
+      console.log(result);
+      if(err) {
+        res.status(400).send(err);
+      }
+      else {
+        res.status(200);
+      }
+    });
+  }
+  else {
+    console.log("*****DECK ERROR ******");
+    res.status(400).send("Missing one or more deck attributes.");
+  }
+});
+
 app.post("/decks", function(req, res, next) {
   if(req.body && req.body.name && req.body.author_id) {
     console.log(req.body);
@@ -33,8 +59,7 @@ app.post("/decks", function(req, res, next) {
     });
   }
   else {
-    console.log("Missing name or author_id: ", req.body);
-    res.sendStatus(400);
+    res.status(400).send("Authorid or name required.");
   }
 });
 
@@ -49,6 +74,19 @@ app.get("/cards/:id?", function(req, res) {
     db.collection("cards").find().toArray(function(err, result) {
       res.send(result);
     });
+  }
+});
+
+app.get("/batchcards", function(req, res) {
+  if(req.query.ids) {
+    var ids = req.query.ids.split(",");
+    ids = ids.map(function(id) { return ObjectID(id); });
+    db.collection("cards").find({ _id: { "$in": ids } }).toArray(function(err, result) {
+      res.send(result);
+    });
+  }
+  else {
+    res.status(400).send("Item ids required.");
   }
 });
 

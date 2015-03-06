@@ -12,7 +12,11 @@
     <li><a href="#" data-color="Useless Swamp">Useless Swamp</a></li>
   </ul>
 </div>
-<table>
+<div id="pages">
+  <a href="#" id="previous-page">Previous Page</a>
+  <a href="#" id="next-page">Next Page</a>
+</div>
+<table id="card-list">
   <tbody>
     <tr></tr>
   </tbody>

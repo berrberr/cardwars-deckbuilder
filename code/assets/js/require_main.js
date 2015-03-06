@@ -2,6 +2,7 @@ requirejs.config({
   baseUrl: "assets/js",
   paths: {
     backbone: "vendor/backbone",
+    "backbone.obscura": "vendor/backbone.obscura",
     "backbone.picky": "vendor/backbone.picky",
     "backbone.syphon": "vendor/backbone.syphon",
     bootstrap: "vendor/bootstrap",
@@ -35,6 +36,7 @@ requirejs.config({
     tpl: ["text"],
     "backbone.syphon": ["backbone"],
     "backbone.picky": ["backbone"],
+    "backbone.obscura": ["backbone"],
     bootstrap: ["jquery"]
   }
 });

@@ -1,4 +1,4 @@
-define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $) {
+define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $, _) {
 
   // All deck related entities
   var Entities = {};
@@ -8,9 +8,19 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $)
     idAttribute: "_id",
 
     defaults: {
-      name: "",
-      author: "",
+      name: "New Deck",
+      author_id: "1234",
       cards: []
+    },
+
+    sync: function(method) {
+      console.log("deck sync called", method);
+      // if(method === "update" || method === "create") {
+      //   var cardIds = _.pick(this.get("cards"), "_id");
+      //   console.log(cardIds);
+      //   this.set("cards", cardIds);
+      // }
+      return Backbone.sync.apply(this, arguments);
     }
   });
 

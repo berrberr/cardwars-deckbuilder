@@ -1,4 +1,9 @@
-define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $, _) {
+define(["app",
+        "entities/common",
+        "backbone",
+        "jquery",
+        "underscore"],
+      function(CWApp, CommonEntities, Backbone, $, _) {
 
   // All deck related entities
   var Entities = {};
@@ -25,9 +30,32 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
     model: Entities.Card,
 
     byColor: function(color) {
-      if(color === "All") return this.models;
+      if(color === "All") return this.fullCollection.models;
 
-      return this.where({ color: color });
+      return this.fullCollection.where({ color: color });
+    }
+  });
+
+  Entities.CardIdCollection = Backbone.Collection.extend({
+    url: "batchcards",
+    model: Entities.Card,
+
+    initialize: function(model, options) {
+      this.idArr = options.ids;
+    },
+
+    fetchCards: function() {
+      var baseUrl = this.url;
+      var defer = $.Deferred();
+
+      this.url += "?ids=" + this.idArr.join(",");
+      this.fetch().done(function(res) {
+        console.log(res);
+        defer.resolve(res);
+      });
+
+      this.url = baseUrl;
+      return defer.promise();
     }
   });
 
@@ -37,15 +65,6 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
       var defer = $.Deferred();
       cards.fetch({
         success: function(cards) {
-          // var colorSeperatedCards = {
-          //   All: cards,
-          //   BluePlains: new Backbone.Collection(cards.where({ color: "Blue Plains" })),
-          //   Cornfield: new Backbone.Collection(cards.where({ color: "Cornfield" })),
-          //   NiceLands: cards.where({ color: "NiceLands" }),
-          //   Rainbow: cards.where({ color: "Rainbow" }),
-          //   SandyLands: cards.where({ color: "SandyLands" }),
-          //   UselessSwamp: cards.where({ color: "Useless Swamp" })
-          // };
           defer.resolve(cards);
         },
         error: function() {
@@ -69,6 +88,15 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
       });
 
       return defer.promise();
+    },
+
+    getDeckCardEntities: function(cardIdArr) {
+      var cards = new Entities.CardIdCollection({}, { ids: cardIdArr });
+      var defer = $.Deferred();
+      $.when(cards.fetchCards()).done(function() {
+        defer.resolve(cards);
+      });
+      return defer.promise();
     }
   };
 
@@ -78,6 +106,10 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
 
   CWApp.reqres.setHandler("card:entity", function(cardId) {
     return API.getCardEntity(cardId);
+  });
+
+  CWApp.reqres.setHandler("deck:card:entities", function(cardIdArr) {
+    return API.getDeckCardEntities(cardIdArr);
   });
 
   return Entities;
