@@ -1,5 +1,10 @@
 define(["marionette", "apps/config/marionette/regions/dialog"], function(Marionette) {
+
+  /**
+   * GLOBALS
+   */
   var CWApp = new Marionette.Application();
+  CWApp.API = "";
 
   CWApp.addRegions({
     headerRegion: "#header-region",
@@ -34,13 +39,18 @@ define(["marionette", "apps/config/marionette/regions/dialog"], function(Marione
   };
 
   CWApp.on("start", function() {
-    require(["apps/builder/builder_app"], function() {
+    require(["entities/common",
+              "apps/builder/builder_app",
+              "apps/login/login_app"],
+            function(CommonEntities) {
+      CWApp.activeSession = new CommonEntities.Session();
+
       if(Backbone.history) {
         Backbone.history.start();
 
         // Root route
         if(CWApp.getCurrentRoute() === "") {
-          CWApp.trigger("contacts:list");
+          CWApp.trigger("build:deck:list");
         }
       }
     });

@@ -102,7 +102,7 @@ module.exports = function(grunt) {
 
     watch: {
       code: {
-        files: ["code/assets/js/**/*.js", "!code/assets/js/vendor/*", "code/*.tpl", htmlFiles],
+        files: ["code/assets/**/*.js", "!code/assets/js/vendor/*", "code/assets/**/*.tpl", htmlFiles],
         tasks: ["dev"],
         options: {
           livereload: true

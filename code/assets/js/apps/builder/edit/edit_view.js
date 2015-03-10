@@ -70,6 +70,10 @@ define(["app",
 
       triggers: {
         "click span.remove": "deck:card:remove"
+      },
+
+      modelEvents: {
+        "change": "render"
       }
     });
 
@@ -78,8 +82,42 @@ define(["app",
       childView: Edit.DeckListItem,
       childViewContainer: "ul",
 
+      ui: {
+        deckName: "#deck-name",
+        deckNameInput: "#deck-name-edit"
+      },
+
+      modelEvents: {
+        "change": "render"
+      },
+
+      events: {
+        "click @ui.deckName": "editName",
+        "blur @ui.deckNameInput": "updateName",
+        "keypress @ui.deckNameInput": "keypressUpdateName"
+      },
+
       triggers: {
         "click #save-deck": "deck:save"
+      },
+
+      editName: function() {
+        this.ui.deckName.hide();
+
+        var inputLength = this.ui.deckNameInput.val().length * 2;
+        this.ui.deckNameInput.show();
+        this.ui.deckNameInput.focus();
+        this.ui.deckNameInput[0].setSelectionRange(inputLength, inputLength);
+      },
+
+      keypressUpdateName: function(e) {
+        if(e.which === 13) this.updateName();
+      },
+
+      updateName: function() {
+        this.ui.deckName.show();
+        this.ui.deckNameInput.hide();
+        this.trigger("deck:name:update", this.ui.deckNameInput.val());
       }
     });
   });

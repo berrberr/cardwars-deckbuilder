@@ -11,7 +11,8 @@
     </div>
 
     <div class="collapse navbar-collapse" id="header-collapse-target">
-      <ul class="nav navbar-nav">
+      <div id="list-region"></div>
+      <ul id="user-region" class="nav navbar-nav pull-right">
       </ul>
     </div>
   </div>

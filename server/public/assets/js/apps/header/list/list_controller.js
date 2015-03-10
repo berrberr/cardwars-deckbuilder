@@ -1,26 +1,38 @@
-define(["app", "apps/header/list/list_view"], function(ContactManager, View){
-  ContactManager.module("HeaderApp.List", function(List, ContactManager, Backbone, Marionette, $, _){
+define(["app", "apps/header/list/list_view"], function(CWApp, View){
+  CWApp.module("HeaderApp.List", function(List, CWApp, Backbone, Marionette, $, _){
+    
     List.Controller = {
       listHeader: function(){
         require(["entities/header"], function(){
-          var links = ContactManager.request("header:entities");
-          var headers = new View.Headers({collection: links});
-
-          headers.on("brand:clicked", function(){
-            ContactManager.trigger("contacts:list");
+          var links = CWApp.request("header:entities");
+          var headerLayout = new View.HeaderLayout();
+          var headerItems = new View.Headers({
+            collection: links,
+            username: "test"
           });
 
-          headers.on("childview:navigate", function(childView, model){
+          headerLayout.on("show", function() {
+            headerLayout.linksRegion.show(headerItems);
+            headerLayout.userRegion.show(new View.User({
+              model: CWApp.activeSession.user
+            }));
+          });
+
+          headerLayout.on("brand:clicked", function() {
+            CWApp.trigger("build:deck:list");
+          });
+
+          headerItems.on("childview:navigate", function(childView, model){
             var trigger = model.get("navigationTrigger");
-            ContactManager.trigger(trigger);
+            CWApp.trigger(trigger);
           });
 
-          ContactManager.headerRegion.show(headers);
+          CWApp.headerRegion.show(headerLayout);
         });
       },
 
-      setActiveHeader: function(headerUrl){
-        var links = ContactManager.request("header:entities");
+      setActiveHeader: function(headerUrl) {
+        var links = CWApp.request("header:entities");
         var headerToSelect = links.find(function(header){ return header.get("url") === headerUrl; });
         headerToSelect.select();
         links.trigger("reset");
@@ -28,5 +40,5 @@ define(["app", "apps/header/list/list_view"], function(ContactManager, View){
     };
   });
 
-  return ContactManager.HeaderApp.List.Controller;
+  return CWApp.HeaderApp.List.Controller;
 });

@@ -1,84 +1,86 @@
 define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $, _) {
 
   var Entities = {};
-
-  Entities.FilteredCollection = function(options) {
-    var original = options.collection;
-    var pageSize = options.pageSize || 2;
-    var filtered = new original.constructor();
-    filtered.add(original.models);
-    filtered.filterFunction = options.filterFunction;
-
-    var applyFilter = function(filterCriterion, filterStrategy, collection) {
-      var coll = collection || original;
-      var criterion;
-      if(filterStrategy == "filter") {
-        criterion = filterCriterion.trim();
-      } else {
-        criterion = filterCriterion;
-      }
-
-      var items = [];
-      if(criterion) {
-        if(filterStrategy == "filter") {
-          if(!filtered.filterFunction) {
-            throw("Attempted to use 'filter' function, but none was defined");
-          }
-          var filterFunction = filtered.filterFunction(criterion);
-          items = coll.filter(filterFunction);
-        } else {
-          items = coll.where(criterion);
-        }
-      } else {
-        items = coll.models;
-      }
-
-      // store current criterion on filtered object
-      filtered._currentCriterion = criterion;
-
-      return items;
-    };
-
-    filtered.filter = function(filterCriterion) {
-      filtered._currentFilter = "filter";
-      var items = applyFilter(filterCriterion, "filter");
-
-      filtered.reset(items);
-      return filtered;
-    };
-
-    filtered.where = function(filterCriterion) {
-      filtered._currentFilter = "where";
-      var items = applyFilter(filterCriterion, "where");
-
-      filtered.reset(items);
-      return filtered;
-    };
-
-    // when the original collection is reset,
-    // the filtered collection will re-filter itself
-    // and end up with the new filtered result set
-    original.on("reset", function() {
-      var items = applyFilter(filtered._currentCriterion, filtered._currentFilter);
-
-      // reset the filtered collection with new items
-      filtered.reset(items);
-    });
-
-    // if the original collection gets models added to it:
-    // 1. create a new collection
-    // 2. filter it
-    // 3. add the filtered models (i.e. the models that were added *and*
-    // match the filtering criterion) to the `filtered` collection
-    original.on("add", function(models) {
-      var coll = new original.constructor();
-      coll.add(models);
-      var items = applyFilter(filtered._currentCriterion, filtered._currentFilter, coll);
-      filtered.add(items);
-    });
-
-    return filtered;
-  };
   
+  Entities.User = Backbone.Model.extend({
+    idAttribute: "_id",
+    urlRoot: CWApp.API + "/user",
+
+    defaults: {
+      username: ""
+    }
+  });
+
+  Entities.Session = Backbone.Model.extend({
+    urlRoot: CWApp.API + "/auth",
+
+    defaults: {
+      loggedIn: false,
+      username: ""
+    },
+
+    initialize: function() {
+      this.user = new Entities.User({});
+    },
+
+    updateUser: function(userData) {
+      this.user.set(_.pick(userData, _.keys(this.user.defaults)));
+    },
+
+    checkAuth: function(args) {
+      var defer = $.Deferred();
+      var self = this;
+      this.fetch({
+        success: function(model, result) {
+          self.updateUser(result);
+          self.set("loggedIn", true);
+          defer.resolve(true);
+        },
+        error: function(model, result) {
+          self.set({ loggedIn: false });
+          defer.reject(result.responseText);
+        }
+      });
+
+      return defer.promise();
+    },
+
+    postAuth: function(opts, callback, args) {
+      var self = this;
+      var postData = _.omit(opts, "method");
+      $.ajax({
+        url: this.url() + "/" + opts.method,
+        contentType: "application/json",
+        dataType: "json",
+        type: "POST",
+        data:  JSON.stringify( _.omit(opts, "method") ),
+        success: function(result) {
+          console.log(result);
+          if(!result.error){
+            if(_.indexOf(["login", "signup"], opts.method) !== -1) {
+              self.updateUser(result || {});
+              self.set({ username: result.username, logged_in: true });
+            } else {
+              self.set({ logged_in: false });
+            }
+            if(callback && "success" in callback) callback.success(result);
+          } else {
+            if(callback && "error" in callback) callback.error(result);
+          }
+        },
+        error: function(model, result) {
+          if(callback && "error" in callback) callback.error(result);
+        }
+      }).complete(function() {
+        if(callback && "complete" in callback) callback.complete(result);
+      });
+    },
+
+    login: function(opts, callback, args) {
+      this.postAuth(_.extend(opts, { method: "login" }), callback, args);
+    }
+
+  });
+
   return Entities;
 });

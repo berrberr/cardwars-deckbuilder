@@ -4,28 +4,32 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
   var Entities = {};
 
   Entities.Deck = Backbone.Model.extend({
-    urlRoot: "decks",
+    urlRoot: CWApp.API + "/decks",
     idAttribute: "_id",
 
     defaults: {
       name: "New Deck",
-      author_id: "1234",
+      author_id: "Guest",
       cards: []
     },
 
     sync: function(method) {
       console.log("deck sync called", method);
-      // if(method === "update" || method === "create") {
-      //   var cardIds = _.pick(this.get("cards"), "_id");
-      //   console.log(cardIds);
-      //   this.set("cards", cardIds);
-      // }
+      if(method === "update") {
+        var ids = [];
+        _.each(this.get("cards"), function(card) {
+          for(var i = 0; i < card.quantity; i++) {
+            ids.push(card._id);
+          }
+        });
+        this.set("cards", ids);
+      }
       return Backbone.sync.apply(this, arguments);
     }
   });
 
   Entities.DeckCollection = Backbone.Collection.extend({
-    url: "decks",
+    url: CWApp.API + "/decks",
     model: Entities.Deck
   });
 

@@ -1,9 +1,29 @@
 define(["app",
         "tpl!apps/header/list/templates/list.tpl",
         "tpl!apps/header/list/templates/list_item.tpl",
+        "tpl!apps/header/list/templates/user_item.tpl",
         "bootstrap"],
-        function(ContactManager, listTpl, listItemTpl){
-  ContactManager.module("HeaderApp.List.View", function(View, ContactManager, Backbone, Marionette, $, _){
+      function(CWApp, listTpl, listItemTpl, userItemTpl) {
+  CWApp.module("HeaderApp.List.View", function(View, CWApp, Backbone, Marionette, $, _) {
+
+    View.HeaderLayout = Marionette.LayoutView.extend({
+      template: listTpl,
+
+      regions: {
+        linksRegion: "#list-region",
+        userRegion: "#user-region"
+      },
+
+      events: {
+        "click a.brand": "brandClicked"
+      },
+
+      brandClicked: function(e) {
+        e.preventDefault();
+        this.trigger("brand:clicked");
+      }
+    });
+
     View.Header = Marionette.ItemView.extend({
       template: listItemTpl,
       tagName: "li",
@@ -25,22 +45,21 @@ define(["app",
       }
     });
 
-    View.Headers = Marionette.CompositeView.extend({
-      template: listTpl,
-      className: "navbar navbar-inverse navbar-fixed-top",
+    View.Headers = Marionette.CollectionView.extend({
       childView: View.Header,
-      childViewContainer: "ul",
+      tagName: "ul",
+      className: "nav navbar-nav"
+    });
 
-      events: {
-        "click a.brand": "brandClicked"
-      },
+    View.User = Marionette.ItemView.extend({
+      template: userItemTpl,
+      tagName: "li",
 
-      brandClicked: function(e){
-        e.preventDefault();
-        this.trigger("brand:clicked");
+      modelEvents: {
+        "change": "render"
       }
     });
   });
 
-  return ContactManager.HeaderApp.List.View;
+  return CWApp.HeaderApp.List.View;
 });

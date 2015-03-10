@@ -11,13 +11,11 @@ define(["app", "apps/builder/edit/edit_view"], function(CWApp, EditView) {
             var fetchingCards = CWApp.request("card:entities");
             $.when(fetchingCards).done(function(cards) {
               var filteredCards = new Obscura(cards);
-              var deckCardsCollection = new Backbone.Collection(deck.get("cards").map(function(cardId) {
-                return cards.findWhere({ _id: cardId }).toJSON();
-              }));
-              filteredCards.setPerPage(2);
+              var deckCardsCollection = CWApp.request("deck:card:entities", cards, deck.get("cards"));
+              filteredCards.setPerPage(4);
 
               var layoutView = new EditView.Layout();
-              var deckListView = new EditView.DeckList({ collection: deckCardsCollection });
+              var deckListView = new EditView.DeckList({ model: deck, collection: deckCardsCollection });
               var cardListView = new EditView.CardList({ collection: filteredCards });
 
               layoutView.on("show", function() {
@@ -34,9 +32,21 @@ define(["app", "apps/builder/edit/edit_view"], function(CWApp, EditView) {
               });
 
               deckListView.on("deck:save", function() {
-                deck.set("cards", deckCardsCollection.toJSON());
-                deck.save();
+                // deck.set("cards", deckCardsCollection.toJSON());
+                // deck.save();
+                $.when(CWApp.activeSession.checkAuth())
+                  .done(function(result) {
+                    console.log(result);
+                  })
+                  .fail(function(err) {
+                    console.log(err);
+                  });
                 console.log(deck);
+              });
+
+              deckListView.on("deck:name:update", function(newName) {
+                console.log("update title: ", newName);
+                deck.set("name", newName);
               });
 
               cardListView.on("cards:color:reset", function() {

@@ -1,5 +1,5 @@
-define(["app", "backbone.picky"], function(ContactManager){
-  ContactManager.module("Entities", function(Entities, ContactManager, Backbone, Marionette, $, _){
+define(["app", "backbone.picky"], function(CWApp){
+  CWApp.module("Entities", function(Entities, CWApp, Backbone, Marionette, $, _){
     Entities.Header = Backbone.Model.extend({
       initialize: function(){
         var selectable = new Backbone.Picky.Selectable(this);
@@ -18,8 +18,8 @@ define(["app", "backbone.picky"], function(ContactManager){
 
     var initializeHeaders = function(){
       Entities.headers = new Entities.HeaderCollection([
-        { name: "Contacts", url: "contacts", navigationTrigger: "contacts:list" },
-        { name: "About", url: "about", navigationTrigger: "about:show" }
+        { name: "Build", url: "build", navigationTrigger: "build:deck:list" },
+        { name: "Login", url: "login", navigationTrigger: "login:show" }
       ]);
     };
 
@@ -32,7 +32,7 @@ define(["app", "backbone.picky"], function(ContactManager){
       }
     };
 
-    ContactManager.reqres.setHandler("header:entities", function(){
+    CWApp.reqres.setHandler("header:entities", function(){
       return API.getHeaders();
     });
   });

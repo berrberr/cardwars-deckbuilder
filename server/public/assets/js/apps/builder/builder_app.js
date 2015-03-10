@@ -27,7 +27,7 @@ define(["app"], function(CWApp) {
     var executeAction = function(action, arg) {
       CWApp.startSubApp("BuilderApp");
       action(arg);
-      CWApp.execute("set:active:header", "contacts");
+      CWApp.execute("set:active:header", "build");
     };
 
     var API = {
@@ -54,20 +54,14 @@ define(["app"], function(CWApp) {
       API.newDeckBuild();
     });
 
-
     CWApp.on("build:deck:edit", function(id) {
       CWApp.navigate("build/edit/" + id);
       API.editDeckBuild(id);
     });
 
-    CWApp.on("contact:show", function(id) {
-      CWApp.navigate("contacts/" + id);
-      API.showContact(id);
-    });
-
-    CWApp.on("contact:edit", function(id) {
-      CWApp.navigate("contacts/" + id + "/edit");
-      API.editContact(id);
+    CWApp.on("build:deck:list", function() {
+      CWApp.navigate("build");
+      API.emptyBuild();
     });
 
     CWApp.addInitializer(function() {

@@ -9,7 +9,7 @@ define(["app",
   var Entities = {};
 
   Entities.Card = Backbone.Model.extend({
-    urlRoot: "cards",
+    urlRoot: CWApp.API + "/cards",
     idAttribute: "_id",
 
     defaults: {
@@ -21,12 +21,21 @@ define(["app",
       def: "",
       ability: "",
       image: "",
-      text: ""
+      text: "",
+      quantity: ""
+    },
+
+    validate: function(attrs, options) {
+      console.log(attrs.quantity);
+      if(attrs.quantity > 3) {
+        console.log("qty too big", attrs.quantity);
+        return "maximum 3 cards in deck";
+      }
     }
   });
 
   Entities.CardCollection = Backbone.Collection.extend({
-    url: "cards",
+    url: CWApp.API + "/cards",
     model: Entities.Card,
 
     byColor: function(color) {
@@ -37,7 +46,7 @@ define(["app",
   });
 
   Entities.CardIdCollection = Backbone.Collection.extend({
-    url: "batchcards",
+    url: CWApp.API + "/batchcards",
     model: Entities.Card,
 
     initialize: function(model, options) {
@@ -56,6 +65,42 @@ define(["app",
 
       this.url = baseUrl;
       return defer.promise();
+    }
+  });
+
+  Entities.DeckCardCollection = Backbone.Collection.extend({
+    model: Entities.Card,
+
+    initFromArray: function(options) {
+      var that = this;
+      _.each(options.cardIds, function(cardId) {
+        that.add(options.cards.findWhere({ _id: cardId }).toJSON());
+      });
+    },
+
+    add: function(model, options) {
+      options = _.extend(options ? options : {}, { merge: true, validate: true });
+      var card = this.findWhere({ _id: model._id });
+      console.log("card: ", card);
+      if(card) {
+        model.quantity = card.get("quantity") + 1;
+      }
+      else {
+        model.quantity = 1;
+      }
+      Backbone.Collection.prototype.add.call(this, model, options);
+    },
+
+    remove: function(model, options) {
+      options = _.extend(options ? options : {}, { merge: true, validate: true });
+      var card = this.findWhere({ _id: model.get("_id") });
+      console.log(card.get("quantity"));
+      if(card && card.get("quantity") > 1) {
+        card.set("quantity", card.get("quantity") - 1);
+      }
+      else {
+        Backbone.Collection.prototype.remove.call(this, model, options);
+      }
     }
   });
 
@@ -90,13 +135,10 @@ define(["app",
       return defer.promise();
     },
 
-    getDeckCardEntities: function(cardIdArr) {
-      var cards = new Entities.CardIdCollection({}, { ids: cardIdArr });
-      var defer = $.Deferred();
-      $.when(cards.fetchCards()).done(function() {
-        defer.resolve(cards);
-      });
-      return defer.promise();
+    getDeckCardEntities: function(cards, cardIds) {
+      var deckCardCollection = new Entities.DeckCardCollection();
+      deckCardCollection.initFromArray({ cards: cards, cardIds: cardIds });
+      return deckCardCollection;
     }
   };
 
@@ -108,8 +150,8 @@ define(["app",
     return API.getCardEntity(cardId);
   });
 
-  CWApp.reqres.setHandler("deck:card:entities", function(cardIdArr) {
-    return API.getDeckCardEntities(cardIdArr);
+  CWApp.reqres.setHandler("deck:card:entities", function(cards, cardIds) {
+    return API.getDeckCardEntities(cards, cardIds);
   });
 
   return Entities;
