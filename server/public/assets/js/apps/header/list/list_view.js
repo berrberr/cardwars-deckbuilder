@@ -32,13 +32,13 @@ define(["app",
         "click a": "navigate"
       },
 
-      navigate: function(e){
+      navigate: function(e) {
         e.preventDefault();
         this.trigger("navigate", this.model);
       },
 
-      onRender: function(){
-        if(this.model.selected){
+      onRender: function() {
+        if(this.model.selected) {
           // add class so Bootstrap will highlight the active entry in the navbar
           this.$el.addClass("active");
         }
@@ -55,8 +55,16 @@ define(["app",
       template: userItemTpl,
       tagName: "li",
 
+      events: {
+        "click a": "userClicked"
+      },
+
       modelEvents: {
         "change": "render"
+      },
+
+      userClicked: function() {
+        CWApp.trigger("user:profile", this.model);
       }
     });
   });

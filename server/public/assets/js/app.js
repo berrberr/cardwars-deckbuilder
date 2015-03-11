@@ -41,9 +41,11 @@ define(["marionette", "apps/config/marionette/regions/dialog"], function(Marione
   CWApp.on("start", function() {
     require(["entities/common",
               "apps/builder/builder_app",
-              "apps/login/login_app"],
+              "apps/user/user_app"],
             function(CommonEntities) {
       CWApp.activeSession = new CommonEntities.Session();
+      // Check cookies for logged in user and set active user if found
+      CWApp.activeSession.checkAuth();
 
       if(Backbone.history) {
         Backbone.history.start();

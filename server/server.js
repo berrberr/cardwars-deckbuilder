@@ -3,24 +3,22 @@ var app = express(),
     config = require("./config"),
     path = require("path"),
     bodyParser = require("body-parser"),
-    cookieParser = require("cookie-parser"),
-    cookieSession = require("cookie-session"),
+    Cookies = require("cookies"),
+    Keygrip = require("keygrip"),
     bcrypt = require("bcrypt"),
     mongoose = require("mongoose"),
+    URLSlugs = require('mongoose-url-slugs'),
     mongo = require("mongoskin");
 
 ObjectID = mongo.ObjectID;
 
-//var db = mongo.db("mongodb://@localhost:27017/cardwars");
-
-app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser(config.cookieSecret));           // populates req.signedCookies
-app.use(cookieSession(config.sessionSecret));         // populates req.session, needed for CSRF
+app.use(express.static(path.join(__dirname, "public")));
 
 mongoose.connect("mongodb://localhost/cardwars");
 var db = mongoose.connection;
+var keys = new Keygrip([config.cookieSecret]);
 
 var userSchema = new mongoose.Schema({
   username: String,
@@ -30,10 +28,11 @@ var userSchema = new mongoose.Schema({
 
 var deckSchema = new mongoose.Schema({
   name: String,
-  author_id: String,
+  author: String,
   cards: Array,
   updated: { type: Date, default: Date.now }
 });
+deckSchema.plugin(URLSlugs("name"));
 
 var cardSchema = new mongoose.Schema({
   ability: String,
@@ -53,18 +52,21 @@ var Deck = mongoose.model("Deck", deckSchema);
 var User = mongoose.model("User", userSchema);
 
 app.get("/auth", function(req, res) {
-  if(req.signedCookies.user_id && req.signedCookies.auth_token) {
-    User.findOne({ _id: req.signedCookies.user_id, auth_token: req.signedCookies.auth_token }, function(err, result) {
+  var cookies = new Cookies(req, res, keys);
+  var user_id = cookies.get("user_id", { signed: true });
+  var auth_token = cookies.get("auth_token", { signed: true });
+  if(user_id && auth_token) {
+    User.findOne({ _id: user_id, auth_token: auth_token }, function(err, result) {
       if(result) {
         res.send({ username: result.username });
       }
       else {
-        res.status(400).send("Invalid login cookies.");
+        res.status(401).send("Invalid login cookies.");
       }
     });
   }
   else {
-    res.status(400).send("Invalid login cookies.");
+    res.status(401).send("Invalid login cookies.");
   }
 });
 
@@ -77,54 +79,58 @@ app.post("/auth/signup", function(req, res) {
           password: bcrypt.hashSync(req.body.password, 8),
           auth_token: bcrypt.genSaltSync(8)
         });
-        newUser.save(function(err, response) {
-          if(response) {
-            res.cookie("user_id", response._id, { signed: true, maxAge: config.cookieMaxAge });
-            res.cookie("auth_token", response.auth_token, { signed: true, maxAge: config.cookieMaxAge });
+        newUser.save(function(err, result) {
+          console.log(result);
+          if(result) {
+            var cookies = new Cookies(req, res, keys);
+            cookies.set("auth_token", result.auth_token, { signed: true })
+                    .set("user_id", result._id, { signed: true });
             res.send({ username: result.username });
           }
           else {
-            res.status(400).send("There was a problem creating the user.");
+            res.status(400).send({ error: "There was a problem creating the user." });
           }
         });
       }
       else {
-        res.status(400).send("Username is taken.");
+        res.status(400).send({ error: "Username is taken.", stayOnPage: true });
       }
     });
   }
   else {
-    res.status(400).send("Missing username or password.");
+    res.status(400).send({ error: "Missing username or password.", stayOnPage: true });
   }
 });
 
 app.post("/auth/login", function(req, res) {
+  console.log(req.body);
   if(req.body && req.body.username && req.body.password) {
     User.findOne({ username: req.body.username }, function(err, result) {
       if(result) {
         if(bcrypt.compareSync(req.body.password, result.password)) {
-          res.cookie("user_id", result._id, { signed: true, maxAge: config.cookieMaxAge });
-          res.cookie("auth_token", result.auth_token, { signed: true, maxAge: config.cookieMaxAge });
+          var cookies = new Cookies(req, res, keys);
+          cookies.set("auth_token", result.auth_token, { signed: true })
+                  .set("user_id", result._id, { signed: true });
           res.send({ username: result.username });
         }
         else {
-          res.status(400).send({ error: "Invalid username or password." });
+          res.status(401).send({ error: "Invalid username or password." });
         }
       }
       else {
-        res.status(400).send({ error: "Username not found." });
+        res.status(401).send({ error: "Username not found." });
       }
     });
   } 
   else {
-    res.status(400).send({ error: "Missing username or password." });
+    res.status(401).send({ error: "Missing username or password." });
   }
 });
 
 app.post("/auth/logout", function(req, res) {
-  res.clearCookie("user_id");
-  res.clearCookie("auth_token");
-  res.send("Logged out.");
+  var cookies = new Cookies(req, res, keys);
+  cookies.set("auth_token").set("auth_token.sig").set("user_id").set("user_id.sig");
+  res.send({ logged_out: true });
 });
 
 app.get("/decks/:id?", function(req, res) {
@@ -141,19 +147,20 @@ app.get("/decks/:id?", function(req, res) {
 });
 
 app.put("/decks/:id", function(req, res) {
-  if(req.body && req.body._id && req.body.name && req.body.author_id && req.body.cards) {
+  if(req.body && req.body._id && req.body.name && req.body.author && req.body.cards) {
     Deck.findOneAndUpdate({ _id: ObjectID(req.body._id) }, {
       name: req.body.name,
-      author_id: req.body.author_id,
-      cards: req.body.cards
+      author: req.body.author,
+      cards: req.body.cards,
+      updated: Date.now()
     }, function(err, result) {
       console.log(err);
       console.log(result);
       if(err) {
-        res.status(400).send(err);
+        res.status(400).send({ error: err });
       }
       else {
-        res.status(200);
+        res.send(result);
       }
     });
   }
@@ -163,8 +170,9 @@ app.put("/decks/:id", function(req, res) {
 });
 
 app.post("/decks", function(req, res, next) {
-  if(req.body && req.body.name && req.body.author_id) {
+  if(req.body && req.body.name && req.body.author) {
     var newDeck = new Deck(req.body);
+    console.log(newDeck);
     newDeck.save(function(err, result) {
       res.send((err === null) ? result : { error : err });
     });

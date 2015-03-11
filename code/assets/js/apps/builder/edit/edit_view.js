@@ -84,7 +84,8 @@ define(["app",
 
       ui: {
         deckName: "#deck-name",
-        deckNameInput: "#deck-name-edit"
+        deckNameInput: "#deck-name-edit",
+        flash: "#flash"
       },
 
       modelEvents: {
@@ -102,9 +103,8 @@ define(["app",
       },
 
       editName: function() {
-        this.ui.deckName.hide();
-
         var inputLength = this.ui.deckNameInput.val().length * 2;
+        this.ui.deckName.hide();
         this.ui.deckNameInput.show();
         this.ui.deckNameInput.focus();
         this.ui.deckNameInput[0].setSelectionRange(inputLength, inputLength);
@@ -118,6 +118,10 @@ define(["app",
         this.ui.deckName.show();
         this.ui.deckNameInput.hide();
         this.trigger("deck:name:update", this.ui.deckNameInput.val());
+      },
+
+      flash: function(message, style) {
+        this.ui.flash.removeClass("hidden").addClass(style).text(message);
       }
     });
   });

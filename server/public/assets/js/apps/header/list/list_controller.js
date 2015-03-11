@@ -8,7 +8,7 @@ define(["app", "apps/header/list/list_view"], function(CWApp, View){
           var headerLayout = new View.HeaderLayout();
           var headerItems = new View.Headers({
             collection: links,
-            username: "test"
+            username: null
           });
 
           headerLayout.on("show", function() {

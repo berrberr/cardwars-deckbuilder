@@ -20,7 +20,8 @@ define(["app"], function(CWApp) {
       appRoutes: {
         "build": "emptyBuild",
         "build/new": "newDeckBuild",
-        "build/edit/:id": "editDeckBuild"
+        "build/edit/:id": "editDeckBuild",
+        "view/:slug": "viewDeck"
       }
     });
 
@@ -46,6 +47,16 @@ define(["app"], function(CWApp) {
         require(["apps/builder/edit/edit_controller"], function(EditController) {
           executeAction(EditController.editDeck, id);
         });
+      },
+      viewDeck: function(slug) {
+        require(["apps/builder/viewer/viewer_controller"], function(ViewerController) {
+          if(slug) {
+            ViewerController.showDeck(slug);
+          }
+          else {
+            ViewerController.showDecks();
+          }
+        });
       }
     };
 
@@ -62,6 +73,11 @@ define(["app"], function(CWApp) {
     CWApp.on("build:deck:list", function() {
       CWApp.navigate("build");
       API.emptyBuild();
+    });
+
+    CWApp.on("view:deck:list", function() {
+      CWApp.navigate("view");
+      API.viewDeck();
     });
 
     CWApp.addInitializer(function() {

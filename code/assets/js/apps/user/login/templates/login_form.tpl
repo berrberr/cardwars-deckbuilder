@@ -1,3 +1,4 @@
+<h1>Login</h1>
 <form>
   <div class="form-group">
     <label for="login-username">
@@ -12,5 +13,6 @@
     type="password" class="form-control"/>
   </div>
   <div id="login-error" class="hidden alert alert-danger">Username or password incorrect, try again.</div>
-  <button class="btn btn-default js-submit">Login</button>
+  <button id="btn-submit" class="btn btn-default">Login</button>
+  <button id="btn-signup" class="btn btn-success">Signup</button>
 </form>

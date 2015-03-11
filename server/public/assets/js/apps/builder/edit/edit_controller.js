@@ -32,15 +32,23 @@ define(["app", "apps/builder/edit/edit_view"], function(CWApp, EditView) {
               });
 
               deckListView.on("deck:save", function() {
-                // deck.set("cards", deckCardsCollection.toJSON());
-                // deck.save();
-                $.when(CWApp.activeSession.checkAuth())
-                  .done(function(result) {
-                    console.log(result);
-                  })
-                  .fail(function(err) {
-                    console.log(err);
-                  });
+                CWApp.activeSession.checkAuth({
+                  success: function(result) {
+                    console.log("saving...");
+                    deck.set("cards", deckCardsCollection.toJSON());
+                    deck.save(null, {
+                      success: function() {
+                        deckListView.flash("Deck saved!", "alert-success");
+                      },
+                      error: function() {
+                        deckListView.flash("Problem saving deck. Please try again", "alert-danger");
+                      }
+                    });
+                  },
+                  error: function(error) {
+                    deckListView.flash("You must be logged in to save a deck.", "alert-warning");
+                  }
+                });
                 console.log(deck);
               });
 

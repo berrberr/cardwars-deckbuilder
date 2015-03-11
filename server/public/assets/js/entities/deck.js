@@ -9,7 +9,7 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
 
     defaults: {
       name: "New Deck",
-      author_id: "Guest",
+      author: "Guest",
       cards: []
     },
 
@@ -24,6 +24,7 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
         });
         this.set("cards", ids);
       }
+
       return Backbone.sync.apply(this, arguments);
     }
   });

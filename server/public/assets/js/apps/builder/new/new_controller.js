@@ -5,7 +5,9 @@ define(["app"], function(CWApp) {
       newDeckBuild: function() {
         require(["entities/deck"], function() {
           var newDeck = CWApp.request("deck:entity:new");
-          newDeck.set({ name: "Untitled Deck", author_id: "1234" });
+          var author = CWApp.activeSession.get("loggedIn") ?
+            CWApp.activeSession.get("username") : "Guest";
+          newDeck.set({ name: "Untitled Deck", author: author });
           console.log(newDeck);
           newDeck.save(null, {
             success: function() {

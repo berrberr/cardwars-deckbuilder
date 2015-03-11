@@ -19,7 +19,8 @@ define(["app", "backbone.picky"], function(CWApp){
     var initializeHeaders = function(){
       Entities.headers = new Entities.HeaderCollection([
         { name: "Build", url: "build", navigationTrigger: "build:deck:list" },
-        { name: "Login", url: "login", navigationTrigger: "login:show" }
+        { name: "Decks", url: "view", navigationTrigger: "view:deck:list" },
+        { name: "Login", url: "login", navigationTrigger: "user:login:show" }
       ]);
     };
 

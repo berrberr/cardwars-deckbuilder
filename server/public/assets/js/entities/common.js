@@ -7,7 +7,7 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
     urlRoot: CWApp.API + "/user",
 
     defaults: {
-      username: ""
+      username: null
     }
   });
 
@@ -16,7 +16,7 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
 
     defaults: {
       loggedIn: false,
-      username: ""
+      username: null
     },
 
     initialize: function() {
@@ -27,27 +27,33 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
       this.user.set(_.pick(userData, _.keys(this.user.defaults)));
     },
 
-    checkAuth: function(args) {
-      var defer = $.Deferred();
+    checkAuth: function(callback, args) {
       var self = this;
+      callback = callback || {};
       this.fetch({
         success: function(model, result) {
-          self.updateUser(result);
-          self.set("loggedIn", true);
-          defer.resolve(true);
+          if(result && !result.error) {
+            self.updateUser(result);
+            self.set("loggedIn", true);
+            if("success" in callback) callback.success(model, result);
+          }
+          else {
+            if("error" in callback) callback.error(model, result);
+          }
         },
         error: function(model, result) {
           self.set({ loggedIn: false });
-          defer.reject(result.responseText);
+            if("error" in callback) callback.error(model, result);
         }
+      }).complete(function() {
+        if("complete" in callback) callback.complete();
       });
-
-      return defer.promise();
     },
 
     postAuth: function(opts, callback, args) {
       var self = this;
       var postData = _.omit(opts, "method");
+      callback = callback || {};
       $.ajax({
         url: this.url() + "/" + opts.method,
         contentType: "application/json",
@@ -59,25 +65,39 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
           if(!result.error){
             if(_.indexOf(["login", "signup"], opts.method) !== -1) {
               self.updateUser(result || {});
-              self.set({ username: result.username, logged_in: true });
-            } else {
-              self.set({ logged_in: false });
+              self.set({ username: result.username, loggedIn: true });
+            }
+            else if(_.indexOf(["logout"], opts.method) !== -1) {
+              self.set({ loggedIn: false });
+              self.user.clear();
+            }
+            else {
+              self.set({ loggedIn: false });
             }
             if(callback && "success" in callback) callback.success(result);
-          } else {
+          }
+          else {
             if(callback && "error" in callback) callback.error(result);
           }
         },
-        error: function(model, result) {
-          if(callback && "error" in callback) callback.error(result);
+        error: function(error) {
+          if(callback && "error" in callback) callback.error(error.responseJSON);
         }
-      }).complete(function() {
+      }).complete(function(result) {
         if(callback && "complete" in callback) callback.complete(result);
       });
     },
 
     login: function(opts, callback, args) {
       this.postAuth(_.extend(opts, { method: "login" }), callback, args);
+    },
+
+    logout: function(opts, callback, args) {
+      this.postAuth(_.extend(opts, { method: "logout" }), callback, args);
+    },
+
+    signup: function(opts, callback, args) {
+      this.postAuth(_.extend(opts, { method: "signup" }), callback, args);
     }
 
   });
