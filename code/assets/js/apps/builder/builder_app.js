@@ -21,6 +21,7 @@ define(["app"], function(CWApp) {
         "build": "emptyBuild",
         "build/new": "newDeckBuild",
         "build/edit/:id": "editDeckBuild",
+        "view": "viewDeck",
         "view/:slug": "viewDeck"
       }
     });
@@ -51,11 +52,16 @@ define(["app"], function(CWApp) {
       viewDeck: function(slug) {
         require(["apps/builder/viewer/viewer_controller"], function(ViewerController) {
           if(slug) {
-            ViewerController.showDeck(slug);
+            ViewerController.showDeck({ slug: slug });
           }
           else {
             ViewerController.showDecks();
           }
+        });
+      },
+      viewDeckModel: function(deck) {
+        require(["apps/builder/viewer/viewer_controller"], function(ViewerController) {
+          ViewerController.showDeck({ model: deck });
         });
       }
     };
@@ -78,6 +84,12 @@ define(["app"], function(CWApp) {
     CWApp.on("view:deck:list", function() {
       CWApp.navigate("view");
       API.viewDeck();
+    });
+
+    CWApp.on("view:deck:model", function(deck) {
+      console.log(deck);
+      CWApp.navigate("view/" + deck.get("slug"));
+      API.viewDeckModel(deck);
     });
 
     CWApp.addInitializer(function() {
