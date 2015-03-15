@@ -1,10 +1,11 @@
 define(["app",
+        "apps/builder/common/views",
         "tpl!apps/builder/edit/templates/layout.tpl",
         "tpl!apps/builder/edit/templates/card_list.tpl",
         "tpl!apps/builder/edit/templates/card.tpl",
         "tpl!apps/builder/edit/templates/deck_list.tpl",
         "tpl!apps/builder/edit/templates/deck_list_item.tpl"],
-      function(CWApp, layoutTpl, cardListTpl, cardTpl, deckListTpl, deckListItemTpl) {
+function(CWApp, BuilderViews, layoutTpl, cardListTpl, cardTpl, deckListTpl, deckListItemTpl) {
   CWApp.module("BuilderApp.Edit", function(Edit, CWApp, 
           Backbone, Marionette, $, _) {
 
@@ -17,10 +18,7 @@ define(["app",
       }
     });
 
-    Edit.Card = Marionette.ItemView.extend({
-      template: cardTpl,
-      tagName: "td",
-
+    Edit.Card = BuilderViews.Card.extend({
       triggers: {
         "click img": "deck:card:add"
       }
@@ -64,10 +62,9 @@ define(["app",
 
     });
 
-    Edit.DeckListItem = Marionette.ItemView.extend({
-      template: deckListItemTpl,
-      tagName: "li",
-
+    Edit.DeckListItem = BuilderViews.DeckListItem.extend({
+      editable: true,
+      
       triggers: {
         "click span.remove": "deck:card:remove"
       },
@@ -81,6 +78,10 @@ define(["app",
       template: deckListTpl,
       childView: Edit.DeckListItem,
       childViewContainer: "ul",
+      initialize: function() {
+        console.log(this.model);
+        console.log(this.collection);
+      },
 
       ui: {
         deckName: "#deck-name",

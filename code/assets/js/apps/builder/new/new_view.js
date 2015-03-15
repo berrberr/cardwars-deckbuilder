@@ -1,8 +1,9 @@
 define(["app",
         "tpl!apps/builder/new/templates/newButtons.tpl"],
-      function(CWApp, newButtonsTpl) {
+function(CWApp, newButtonsTpl) {
   CWApp.module("BuilderApp.New", function(New, CWApp, 
-          Backbone, Marionette, $, _) {
+    Backbone, Marionette, $, _) {
+
     New.ButtonsView = Marionette.ItemView.extend({
       template: newButtonsTpl,
 

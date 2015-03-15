@@ -2,7 +2,7 @@ define(["app",
         "tpl!apps/user/login/templates/login_form.tpl",
         "tpl!apps/user/login/templates/signup_form.tpl",
         "backbone.syphon"],
-      function(CWApp, loginFormTpl, signupFormTpl) {
+function(CWApp, loginFormTpl, signupFormTpl) {
   CWApp.module("UserApp.Login.View", function(View, CWApp,
           Backbone, Marionette, $, _){
 

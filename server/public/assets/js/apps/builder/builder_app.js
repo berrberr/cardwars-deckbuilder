@@ -21,7 +21,7 @@ define(["app"], function(CWApp) {
         "build": "emptyBuild",
         "build/new": "newDeckBuild",
         "build/edit/:id": "editDeckBuild",
-        "view": "viewDeck",
+        "view(/)": "viewDeck",
         "view/:slug": "viewDeck"
       }
     });
@@ -29,13 +29,17 @@ define(["app"], function(CWApp) {
     var executeAction = function(action, arg) {
       CWApp.startSubApp("BuilderApp");
       action(arg);
-      CWApp.execute("set:active:header", "build");
+      if(arg && arg.header) {
+        CWApp.execute("set:active:header", arg.header);
+      }
+      else {
+        CWApp.execute("set:active:header", "build");
+      }
     };
 
     var API = {
       emptyBuild: function() {
-        require(["apps/builder/list/list_controller"],
-                function(ListController) {
+        require(["apps/builder/list/list_controller"], function(ListController) {
           executeAction(ListController.listDecks);
         });
       },
@@ -52,16 +56,16 @@ define(["app"], function(CWApp) {
       viewDeck: function(slug) {
         require(["apps/builder/viewer/viewer_controller"], function(ViewerController) {
           if(slug) {
-            ViewerController.showDeck({ slug: slug });
+            executeAction(ViewerController.showDeck, { slug: slug, header: "view" });
           }
           else {
-            ViewerController.showDecks();
+            executeAction(ViewerController.showDecks, { header: "view" });
           }
         });
       },
       viewDeckModel: function(deck) {
         require(["apps/builder/viewer/viewer_controller"], function(ViewerController) {
-          ViewerController.showDeck({ model: deck });
+          executeAction(ViewerController.showDeck, { model: deck, header: "view" });
         });
       }
     };

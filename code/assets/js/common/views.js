@@ -1,9 +1,20 @@
 define(["app",
         "tpl!common/templates/loading.tpl",
+        "tpl!common/templates/404.tpl",
+        "tpl!common/templates/missing_deck.tpl",
         "spin.jquery"],
-      function(ContactManager, loadingTpl) {
-  ContactManager.module("Common.Views", function(Views, ContactManager,
+function(CWApp, loadingTpl, missingPageTpl, missingDeckTpl) {
+  CWApp.module("Common.Views", function(Views, CWApp,
   Backbone, Marionette, $, _) {
+
+    Views.MissingPage = Marionette.ItemView.extend({
+      template: missingPageTpl
+    });
+
+    Views.MissingDeck = Marionette.ItemView.extend({
+      template: missingDeckTpl
+    });
+
     Views.Loading = Marionette.ItemView.extend({
       template: loadingTpl,
 
@@ -41,5 +52,5 @@ define(["app",
     });
   });
 
-  return ContactManager.Common.Views;
+  return CWApp.Common.Views;
 });

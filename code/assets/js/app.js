@@ -42,7 +42,7 @@ define(["marionette", "apps/config/marionette/regions/dialog"], function(Marione
     require(["entities/common",
               "apps/builder/builder_app",
               "apps/user/user_app"],
-            function(CommonEntities) {
+    function(CommonEntities) {
       CWApp.activeSession = new CommonEntities.Session();
       // Check cookies for logged in user and set active user if found
       CWApp.activeSession.checkAuth();

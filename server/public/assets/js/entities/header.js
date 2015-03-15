@@ -1,5 +1,6 @@
 define(["app", "backbone.picky"], function(CWApp){
   CWApp.module("Entities", function(Entities, CWApp, Backbone, Marionette, $, _){
+    
     Entities.Header = Backbone.Model.extend({
       initialize: function(){
         var selectable = new Backbone.Picky.Selectable(this);

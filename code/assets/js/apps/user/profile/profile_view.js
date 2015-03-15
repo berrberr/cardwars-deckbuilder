@@ -3,7 +3,7 @@ define(["app",
         "tpl!apps/user/profile/templates/empty.tpl",
         "tpl!apps/user/profile/templates/logged_out.tpl",
         "backbone.syphon"],
-      function(CWApp, profileTpl, emptyTpl, loggedOutTpl) {
+function(CWApp, profileTpl, emptyTpl, loggedOutTpl) {
   CWApp.module("UserApp.Profile.View", function(View, CWApp,
           Backbone, Marionette, $, _){
 

@@ -1,5 +1,6 @@
 define(["app", "apps/header/list/list_controller"], function(CWApp, ListController){
   CWApp.module("HeaderApp", function(Header, CWApp, Backbone, Marionette, $, _){
+    
     var API = {
       listHeader: function(){
         ListController.listHeader();

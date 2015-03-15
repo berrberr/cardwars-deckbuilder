@@ -1,6 +1,6 @@
 define(["app",
         "apps/contacts/list/list_view"],
-      function(ContactManager, View) {
+function(ContactManager, View) {
   ContactManager.module("ContactsApp.List", function(List, ContactManager,
   Backbone, Marionette, $, _) {
     List.Controller = {

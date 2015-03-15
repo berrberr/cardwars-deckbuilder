@@ -4,7 +4,7 @@ define(["app",
         "tpl!apps/contacts/list/templates/list_item.tpl",
         "tpl!apps/contacts/list/templates/none.tpl",
         "tpl!apps/contacts/list/templates/panel.tpl"],
-      function(ContactManager, layoutTpl, listTpl, listItemTpl, noneTpl, panelTpl) {
+function(ContactManager, layoutTpl, listTpl, listItemTpl, noneTpl, panelTpl) {
   ContactManager.module("ContactsApp.List.View", function(View, ContactManager,
   Backbone, Marionette, $, _) {
     View.Layout = Marionette.LayoutView.extend({

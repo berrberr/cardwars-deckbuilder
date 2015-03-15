@@ -11,7 +11,7 @@ define(["app", "apps/builder/viewer/viewer_view"], function(CWApp, ViewerView) {
 
             decksView.on("childview:view:deck", function(childView) {
               console.log(childView.model);
-              CWApp.trigger("view:deck:model", childView.model.toJSON());
+              CWApp.trigger("view:deck:model", childView.model);
             });
             // layoutView.on("show", function() {
             //   layoutView.deckRegion.show(deckListView);
@@ -24,23 +24,42 @@ define(["app", "apps/builder/viewer/viewer_view"], function(CWApp, ViewerView) {
         });
       },
       showDeck: function(opts) {
-        var showDeckModel = function(model) {
-          console.log(model);
-          var deckLayout = new ViewerView.DeckLayout();
+        require(["entities/deck", "entities/card"], function() {
+          var showDeckModel = function(deck) {
+            var fetchingCards = CWApp.request("card:entities");
+            $.when(fetchingCards).done(function(cards) {
+              var deckLayout = new ViewerView.DeckLayout();
 
-          deckLayout.on("show", function() {
-            deckLayout.deckRegion.show(new ViewerView.Deck(model));
-          });
+              if(deck) {
+                var deckCardsCollection = CWApp.request("deck:card:entities", cards, deck.get("cards"));
+                var deckList = new ViewerView.Deck({
+                  model: deck,
+                  collection: deckCardsCollection
+                });
+                console.log(deck);
+              }
+              
+              deckLayout.on("show", function() {
+                if(deck) {
+                  deckLayout.deckRegion.show(deckList);
+                }
+                else {
+                  deckLayout.deckRegion.show(new ViewerView.MissingDeck());
+                }
+              });
 
-          CWApp.mainRegion.show(deckLayout);
-        };
+              CWApp.mainRegion.show(deckLayout);
+            });
+          };
 
-        require(["entities/deck"], function() {
           if(opts.model) {
             showDeckModel(opts.model);
           }
-          else {
-
+          else if(opts.slug) {
+            var fetchingDeck = CWApp.request("deck:entity:slug", opts.slug);
+            $.when(fetchingDeck).done(function(deck) {
+              showDeckModel(deck);
+            });
           }
         });
       }

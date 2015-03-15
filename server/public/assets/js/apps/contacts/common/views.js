@@ -1,7 +1,7 @@
 define(["app",
         "tpl!apps/contacts/common/templates/contact_form.tpl",
         "backbone.syphon"],
-      function(ContactManager, contactFormTpl) {
+function(ContactManager, contactFormTpl) {
   ContactManager.module("ContactsApp.Common.Views", function(Views, ContactManager,
   Backbone, Marionette, $, _) {
     Views.Form = Marionette.ItemView.extend({

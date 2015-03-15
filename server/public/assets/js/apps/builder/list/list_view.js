@@ -2,9 +2,9 @@ define(["app",
         "tpl!apps/builder/list/templates/list.tpl",
         "tpl!apps/builder/list/templates/list_item.tpl",
         "tpl!apps/builder/list/templates/layout.tpl"],
-      function(CWApp, listTpl, listItemTpl, layoutTpl) {
+function(CWApp, listTpl, listItemTpl, layoutTpl) {
   CWApp.module("BuilderApp.List", function(List, CWApp, 
-          Backbone, Marionette, $, _) {
+    Backbone, Marionette, $, _) {
 
     List.Layout = Marionette.LayoutView.extend({
       template: layoutTpl,

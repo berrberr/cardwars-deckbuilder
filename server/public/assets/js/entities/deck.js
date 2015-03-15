@@ -13,6 +13,24 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
       cards: []
     },
 
+    fetchBySlug: function(slug) {
+      var oldUrl = this.url;
+      var defer = $.Deferred();
+      this.url = this.urlRoot + "/slug/" + slug;
+      this.fetch({
+        success: function(model) {
+          this.url = oldUrl;
+          defer.resolve(model);
+        },
+        error: function() {
+          this.url = oldUrl;
+          defer.reject(undefined);
+        }
+      });
+
+      return defer.promise();
+    },
+
     sync: function(method) {
       console.log("deck sync called", method);
       if(method === "update") {
@@ -63,6 +81,20 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
       });
 
       return defer.promise();
+    },
+
+    getDeckEntityBySlug: function(slug) {
+      var deck = new Entities.Deck();
+      var defer = $.Deferred();
+      $.when(deck.fetchBySlug(slug))
+        .done(function(data) {
+          defer.resolve(data);
+        })
+        .fail(function() {
+          defer.resolve(undefined);
+        });
+
+      return defer.promise();
     }
   };
 
@@ -76,6 +108,10 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
 
   CWApp.reqres.setHandler("deck:entity", function(deckId) {
     return API.getDeckEntity(deckId);
+  });
+
+  CWApp.reqres.setHandler("deck:entity:slug", function(slug) {
+    return API.getDeckEntityBySlug(slug);
   });
 
   return Entities;

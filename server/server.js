@@ -30,6 +30,7 @@ var deckSchema = new mongoose.Schema({
   name: String,
   author: String,
   cards: Array,
+  description: String,
   updated: { type: Date, default: Date.now }
 });
 deckSchema.plugin(URLSlugs("name"));
@@ -50,6 +51,30 @@ var cardSchema = new mongoose.Schema({
 var Card = mongoose.model("Card", cardSchema);
 var Deck = mongoose.model("Deck", deckSchema);
 var User = mongoose.model("User", userSchema);
+
+/**
+ * Attempts to get the active user from a request's cookies
+ */
+var getActiveUser = function(req, res, callback) {
+  var cookies = new Cookies(req, res, keys);
+  var user_id = cookies.get("user_id", { signed: true });
+  var auth_token = cookies.get("auth_token", { signed: true });
+  User.findOne({ _id: user_id, auth_token: auth_token }, function(err, user) {
+    if(!err) {
+      callback.success(user);
+    }
+    else {
+      callback.error(err);
+    }
+  });
+};
+
+/**
+ * Helper function to send error message with default 400 status
+ */
+var sendError = function(res, message, status) {
+  res.status(status || 400).send({ error: message });
+};
 
 app.get("/auth", function(req, res) {
   var cookies = new Cookies(req, res, keys);
@@ -133,6 +158,12 @@ app.post("/auth/logout", function(req, res) {
   res.send({ logged_out: true });
 });
 
+app.get("/decks/slug/:slug", function(req, res) {
+  Deck.findOne({ slug: req.params.slug }, function(err, result) {
+    res.send(result);
+  });
+});
+
 app.get("/decks/:id?", function(req, res) {
   if(req.params.id) {
     Deck.findOne({ _id: ObjectID(req.params.id) }, function(err, result) {
@@ -147,25 +178,45 @@ app.get("/decks/:id?", function(req, res) {
 });
 
 app.put("/decks/:id", function(req, res) {
-  if(req.body && req.body._id && req.body.name && req.body.author && req.body.cards) {
-    Deck.findOneAndUpdate({ _id: ObjectID(req.body._id) }, {
-      name: req.body.name,
-      author: req.body.author,
-      cards: req.body.cards,
-      updated: Date.now()
-    }, function(err, result) {
-      console.log(err);
-      console.log(result);
-      if(err) {
-        res.status(400).send({ error: err });
+  if(req.body && req.body._id && req.body.description && req.body.name && req.body.author && req.body.cards) {
+    Deck.findOne({ _id: ObjectID(req.params.id) }, function(err, result) {
+      if(!err) {
+        getActiveUser(req, res, {
+          success: function(user) {
+            // Current user must be author of deck & also match the author in request param
+            if(result.author === user.username && req.body.author === user.username) {
+              Deck.findOneAndUpdate({ _id: ObjectID(req.body._id) }, {
+                name: req.body.name,
+                author: req.body.author,
+                description: req.body.description,
+                cards: req.body.cards,
+                updated: Date.now()
+              }, function(err, result) {
+                if(err) {
+                  sendError(res, err);
+                }
+                else {
+                  res.send(result);
+                }
+              });
+            }
+            else {
+              sendError(res, "Wrong user.", 401);
+            }
+          },
+          error: function() {
+            sendError(res, "User must be logged in.", 401);
+          }
+        });
+
       }
       else {
-        res.send(result);
+        sendError(res, "Deck not found.");
       }
     });
   }
   else {
-    res.status(400).send("Missing one or more deck attributes.");
+    sendError(res, "Missing one or more deck attributes.");
   }
 });
 

@@ -3,8 +3,9 @@ define(["app",
         "tpl!apps/header/list/templates/list_item.tpl",
         "tpl!apps/header/list/templates/user_item.tpl",
         "bootstrap"],
-      function(CWApp, listTpl, listItemTpl, userItemTpl) {
-  CWApp.module("HeaderApp.List.View", function(View, CWApp, Backbone, Marionette, $, _) {
+function(CWApp, listTpl, listItemTpl, userItemTpl) {
+  CWApp.module("HeaderApp.List.View", function(View, CWApp,
+    Backbone, Marionette, $, _) {
 
     View.HeaderLayout = Marionette.LayoutView.extend({
       template: listTpl,

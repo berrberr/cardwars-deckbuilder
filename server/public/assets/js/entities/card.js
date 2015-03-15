@@ -3,7 +3,7 @@ define(["app",
         "backbone",
         "jquery",
         "underscore"],
-      function(CWApp, CommonEntities, Backbone, $, _) {
+function(CWApp, CommonEntities, Backbone, $, _) {
 
   // All deck related entities
   var Entities = {};
@@ -143,6 +143,7 @@ define(["app",
   };
 
   CWApp.reqres.setHandler("card:entities", function() {
+    console.log("we are called");
     return API.getCardEntities();
   });
 
