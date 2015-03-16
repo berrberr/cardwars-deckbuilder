@@ -3,3 +3,5 @@ bower_components/
 build/
 server/public/
 node_modules/
+code/assets/sass/vendor/
+code/assets/js/vendor/

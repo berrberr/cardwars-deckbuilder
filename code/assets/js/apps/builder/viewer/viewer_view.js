@@ -5,8 +5,8 @@ define(["app",
         "tpl!apps/builder/viewer/templates/list_item.tpl",
         "tpl!apps/builder/viewer/templates/deck_layout.tpl",
         "tpl!apps/builder/viewer/templates/deck.tpl",
-        "tpl!apps/builder/viewer/templates/deck_list_item.tpl"],
-function(CWApp, CommonViews, BuilderViews, listTpl, listItemTpl, deckLayoutTpl, deckTpl, deckListItemTpl) {
+        "tpl!apps/builder/viewer/templates/user_edit.tpl"],
+function(CWApp, CommonViews, BuilderViews, listTpl, listItemTpl, deckLayoutTpl, deckTpl, userEditTpl) {
   CWApp.module("BuilderApp.Viewer.View", function(View, CWApp, 
     Backbone, Marionette, $, _) {
 
@@ -14,7 +14,20 @@ function(CWApp, CommonViews, BuilderViews, listTpl, listItemTpl, deckLayoutTpl, 
       template: deckLayoutTpl,
 
       regions: {
-        deckRegion: "#deck-region"
+        deckRegion: "#deck-region",
+        authRegion: "#auth-region"
+      },
+
+      onChildviewUserEdit: function(childView) {
+        this.trigger("user:edit", childView);
+      }
+    });
+
+    View.UserEdit = Marionette.ItemView.extend({
+      template: userEditTpl,
+
+      triggers: {
+        "click #btn-user-edit": "user:edit"
       }
     });
 

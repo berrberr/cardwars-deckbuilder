@@ -13,10 +13,6 @@ define(["app", "apps/builder/viewer/viewer_view"], function(CWApp, ViewerView) {
               console.log(childView.model);
               CWApp.trigger("view:deck:model", childView.model);
             });
-            // layoutView.on("show", function() {
-            //   layoutView.deckRegion.show(deckListView);
-            //   layoutView.newRegion.show(newButtonsView);
-            // });
 
             CWApp.mainRegion.show(decksView);
           });
@@ -29,9 +25,12 @@ define(["app", "apps/builder/viewer/viewer_view"], function(CWApp, ViewerView) {
             var fetchingCards = CWApp.request("card:entities");
             $.when(fetchingCards).done(function(cards) {
               var deckLayout = new ViewerView.DeckLayout();
+              var isAuth = false;
 
               if(deck) {
                 var deckCardsCollection = CWApp.request("deck:card:entities", cards, deck.get("cards"));
+                isAuth = CWApp.activeSession.has("username") ?
+                  (CWApp.activeSession.get("username") === deck.get("author")) : false;
                 var deckList = new ViewerView.Deck({
                   model: deck,
                   collection: deckCardsCollection
@@ -45,6 +44,13 @@ define(["app", "apps/builder/viewer/viewer_view"], function(CWApp, ViewerView) {
                 }
                 else {
                   deckLayout.deckRegion.show(new ViewerView.MissingDeck());
+                }
+
+                if(isAuth) {
+                  deckLayout.authRegion.show(new ViewerView.UserEdit());
+                  deckLayout.on("user:edit", function(childView) {
+                    CWApp.trigger("build:deck:edit", deck.id);
+                  });
                 }
               });
 

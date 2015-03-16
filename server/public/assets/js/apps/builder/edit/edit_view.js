@@ -59,12 +59,11 @@ function(CWApp, BuilderViews, layoutTpl, cardListTpl, cardTpl, deckListTpl, deck
       onRender: function() {
         console.log("were rendering", this.collection);
       }
-
     });
 
     Edit.DeckListItem = BuilderViews.DeckListItem.extend({
       editable: true,
-      
+
       triggers: {
         "click span.remove": "deck:card:remove"
       },
