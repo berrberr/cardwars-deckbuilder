@@ -60,7 +60,7 @@ var getActiveUser = function(req, res, callback) {
   var user_id = cookies.get("user_id", { signed: true });
   var auth_token = cookies.get("auth_token", { signed: true });
   User.findOne({ _id: user_id, auth_token: auth_token }, function(err, user) {
-    if(!err) {
+    if(user && user.username) {
       callback.success(user);
     }
     else {
@@ -178,11 +178,12 @@ app.get("/decks/:id?", function(req, res) {
 });
 
 app.put("/decks/:id", function(req, res) {
-  if(req.body && req.body._id && req.body.description && req.body.name && req.body.author && req.body.cards) {
+  if(req.body && req.body._id && req.body.name && req.body.author && req.body.cards) {
     Deck.findOne({ _id: ObjectID(req.params.id) }, function(err, result) {
       if(!err) {
         getActiveUser(req, res, {
           success: function(user) {
+            console.log(user);
             // Current user must be author of deck & also match the author in request param
             if(result.author === user.username && req.body.author === user.username) {
               Deck.findOneAndUpdate({ _id: ObjectID(req.body._id) }, {

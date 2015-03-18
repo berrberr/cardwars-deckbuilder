@@ -35,15 +35,15 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
           if(result && !result.error) {
             self.updateUser(result);
             self.set("loggedIn", true);
-            if("success" in callback) callback.success(model, result);
+            if("success" in callback) callback.success(result);
           }
           else {
-            if("error" in callback) callback.error(model, result);
+            if("error" in callback) callback.error(result);
           }
         },
         error: function(model, result) {
           self.set({ loggedIn: false });
-            if("error" in callback) callback.error(model, result);
+            if("error" in callback) callback.error(result);
         }
       }).complete(function() {
         if("complete" in callback) callback.complete();

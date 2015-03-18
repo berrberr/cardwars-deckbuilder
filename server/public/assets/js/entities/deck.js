@@ -10,6 +10,7 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
     defaults: {
       name: "New Deck",
       author: "Guest",
+      description: "",
       cards: []
     },
 
