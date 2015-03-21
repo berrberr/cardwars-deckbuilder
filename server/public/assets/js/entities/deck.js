@@ -14,20 +14,18 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
       cards: []
     },
 
-    fetchBySlug: function(slug) {
-      var oldUrl = this.url;
+    fetchSubresource: function(opts) {
       var defer = $.Deferred();
-      this.url = this.urlRoot + "/slug/" + slug;
-      this.fetch({
-        success: function(model) {
-          this.url = oldUrl;
-          defer.resolve(model);
-        },
-        error: function() {
-          this.url = oldUrl;
+      var self = this;
+      var url = this.urlRoot + "/" + opts.path + "/" + opts.param;
+      $.get(url)
+        .done(function(result) {
+          self.set(result);
+          defer.resolve(self);
+        })
+        .fail(function() {
           defer.reject(undefined);
-        }
-      });
+        });
 
       return defer.promise();
     },
@@ -50,7 +48,23 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
 
   Entities.DeckCollection = Backbone.Collection.extend({
     url: CWApp.API + "/decks",
-    model: Entities.Deck
+    model: Entities.Deck,
+
+    fetchSubresource: function(opts) {
+      var defer = $.Deferred();
+      var self = this;
+      var resourceUrl = this.url + "/" + opts.path + "/" + opts.param;
+      $.get(resourceUrl)
+        .done(function(result) {
+          self.reset(result);
+          defer.resolve(self);
+        })
+        .fail(function() {
+          defer.reject(undefined);
+        });
+
+      return defer.promise();
+    }
   });
 
   var API = {
@@ -84,10 +98,24 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
       return defer.promise();
     },
 
-    getDeckEntityBySlug: function(slug) {
+    getDecksSubresource: function(opts) {
+      var decks = new Entities.DeckCollection();
+      var defer = $.Deferred();
+      $.when(decks.fetchSubresource(opts))
+        .done(function(data) {
+          defer.resolve(data);
+        })
+        .fail(function() {
+          defer.resolve(undefined);
+        });
+
+      return defer.promise();
+    },
+
+    getDeckSubresource: function(opts) {
       var deck = new Entities.Deck();
       var defer = $.Deferred();
-      $.when(deck.fetchBySlug(slug))
+      $.when(deck.fetchSubresource(opts))
         .done(function(data) {
           defer.resolve(data);
         })
@@ -107,12 +135,16 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
     return API.getDeckEntities();
   });
 
+  CWApp.reqres.setHandler("deck:entities:user", function(username) {
+    return API.getDecksSubresource({ path: "author", param: username });
+  });
+
   CWApp.reqres.setHandler("deck:entity", function(deckId) {
     return API.getDeckEntity(deckId);
   });
 
   CWApp.reqres.setHandler("deck:entity:slug", function(slug) {
-    return API.getDeckEntityBySlug(slug);
+    return API.getDeckSubresource({ path: "slug", param: slug });
   });
 
   return Entities;

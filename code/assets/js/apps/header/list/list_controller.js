@@ -34,7 +34,10 @@ define(["app", "apps/header/list/list_view"], function(CWApp, View){
       setActiveHeader: function(headerUrl) {
         var links = CWApp.request("header:entities");
         var headerToSelect = links.find(function(header){ return header.get("url") === headerUrl; });
-        headerToSelect.select();
+        links.selectNone();
+        if(headerToSelect) {
+          headerToSelect.select();
+        }
         links.trigger("reset");
       }
     };

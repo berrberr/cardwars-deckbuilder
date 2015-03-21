@@ -27,7 +27,7 @@ define(["app"], function(CWApp) {
     var executeAction = function(action, arg) {
       CWApp.startSubApp("UserApp");
       action(arg);
-      CWApp.execute("set:active:header", "login");
+      CWApp.execute("set:active:header", null);
     };
 
     var API = {

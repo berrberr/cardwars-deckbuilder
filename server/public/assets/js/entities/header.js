@@ -11,25 +11,25 @@ define(["app", "backbone.picky"], function(CWApp){
     Entities.HeaderCollection = Backbone.Collection.extend({
       model: Entities.Header,
 
-      initialize: function(){
-        var singleSelect = new Backbone.Picky.SingleSelect(this);
-        _.extend(this, singleSelect);
+      initialize: function() {
+        var multiSelect = new Backbone.Picky.MultiSelect(this);
+        _.extend(this, multiSelect);
       }
     });
 
     var initializeHeaders = function(){
       Entities.headers = new Entities.HeaderCollection([
         { name: "Build", url: "build", navigationTrigger: "build:deck:list" },
-        { name: "Decks", url: "view", navigationTrigger: "view:deck:list" },
-        { name: "Login", url: "login", navigationTrigger: "user:login:show" }
+        { name: "Decks", url: "view", navigationTrigger: "view:deck:list" }
       ]);
     };
 
     var API = {
-      getHeaders: function(){
-        if(Entities.headers === undefined){
+      getHeaders: function() {
+        if(Entities.headers === undefined) {
           initializeHeaders();
         }
+
         return Entities.headers;
       }
     };

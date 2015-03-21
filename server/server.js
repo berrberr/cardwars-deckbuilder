@@ -164,6 +164,12 @@ app.get("/decks/slug/:slug", function(req, res) {
   });
 });
 
+app.get("/decks/author/:author", function(req, res) {
+  Deck.find({ author: req.params.author }, function(err, result) {
+    res.send(result);
+  });
+});
+
 app.get("/decks/:id?", function(req, res) {
   if(req.params.id) {
     Deck.findOne({ _id: ObjectID(req.params.id) }, function(err, result) {
