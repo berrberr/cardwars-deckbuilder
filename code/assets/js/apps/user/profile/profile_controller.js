@@ -3,23 +3,29 @@ define(["app", "apps/user/profile/profile_view"], function(CWApp, ProfileView) {
           Backbone, Marionette, $, _) {
 
     Profile.Controller = {
-      show: function(userModel) {
+      show: function(userModel, public) {
         if(userModel && userModel.has("username")) {
           require(["entities/deck"], function() {
             var fetchingDecks = CWApp.request("deck:entities:user", userModel.get("username"));
             $.when(fetchingDecks).done(function(decks) {
               console.log(decks);
               var profileLayout = new ProfileView.Layout();
-              var userInfoView = new ProfileView.UserInfo({ model: userModel });
               var decksView = new ProfileView.Decks({ collection: decks });
+              var userInfoView;
 
-              userInfoView.on("user:active:logout", function() {
-                CWApp.activeSession.logout({}, {
-                  complete: function() {
-                    CWApp.mainRegion.show(new ProfileView.LoggedOut());
-                  }
+              if(public) {
+                userInfoView = new ProfileView.PublicUserInfo({ model: userModel });
+              }
+              else {
+                userInfoView = new ProfileView.UserInfo({ model: userModel });
+                userInfoView.on("user:active:logout", function() {
+                  CWApp.activeSession.logout({}, {
+                    complete: function() {
+                      CWApp.mainRegion.show(new ProfileView.LoggedOut());
+                    }
+                  });
                 });
-              });
+              }
 
               decksView.on("childview:deck:view", function(view) {
                 CWApp.trigger("view:deck:model", view.model);

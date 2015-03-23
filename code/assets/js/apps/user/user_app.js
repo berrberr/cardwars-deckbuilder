@@ -20,7 +20,8 @@ define(["app"], function(CWApp) {
       appRoutes: {
         "login": "loginForm",
         "signup": "signupForm",
-        "user/:username": "userProfile"
+        "user/:username": "userProfile",
+        "profile/:username": "publicProfile"
       }
     });
 
