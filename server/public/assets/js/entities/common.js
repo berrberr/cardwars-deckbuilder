@@ -4,7 +4,11 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
   
   Entities.User = Backbone.Model.extend({
     idAttribute: "_id",
-    urlRoot: CWApp.API + "/user",
+    urlRoot: CWApp.API + "/users",
+
+    url: function() {
+      return this.urlRoot + "/" + this.get("username");
+    },
 
     defaults: {
       username: null

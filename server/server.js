@@ -158,6 +158,19 @@ app.post("/auth/logout", function(req, res) {
   res.send({ logged_out: true });
 });
 
+app.get("/users/:username", function(req, res) {
+  User.findOne({ username: req.params.username }, function(err, result) {
+    if(result && result.username) {
+      res.send({
+        username: result.username
+      });
+    }
+    else {
+      sendError(res, "User not found.");
+    }
+  });
+});
+
 app.get("/decks/slug/:slug", function(req, res) {
   Deck.findOne({ slug: req.params.slug }, function(err, result) {
     res.send(result);

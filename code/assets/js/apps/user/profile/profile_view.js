@@ -2,12 +2,13 @@ define(["app",
         "tpl!apps/user/profile/templates/profile.tpl",
         "tpl!apps/user/profile/templates/public_profile.tpl",
         "tpl!apps/user/profile/templates/empty.tpl",
+        "tpl!apps/user/profile/templates/public_empty.tpl",
         "tpl!apps/user/profile/templates/logged_out.tpl",
         "tpl!apps/user/profile/templates/layout.tpl",
         "tpl!apps/user/profile/templates/deck.tpl",
         "tpl!apps/user/profile/templates/deck_list.tpl",
         "backbone.syphon"],
-function(CWApp, profileTpl, publicProfileTpl, emptyTpl, loggedOutTpl, layoutTpl, deckTpl, deckListTpl) {
+function(CWApp, profileTpl, publicProfileTpl, emptyTpl, publicEmptyTpl, loggedOutTpl, layoutTpl, deckTpl, deckListTpl) {
   CWApp.module("UserApp.Profile.View", function(View, CWApp,
           Backbone, Marionette, $, _){
 
@@ -49,6 +50,10 @@ function(CWApp, profileTpl, publicProfileTpl, emptyTpl, loggedOutTpl, layoutTpl,
 
     View.Empty = Marionette.ItemView.extend({
       template: emptyTpl
+    });
+
+    View.PublicEmpty = Marionette.ItemView.extend({
+      template: publicEmptyTpl
     });
 
     View.LoggedOut = Marionette.ItemView.extend({

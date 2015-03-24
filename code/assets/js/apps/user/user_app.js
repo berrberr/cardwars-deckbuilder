@@ -25,9 +25,9 @@ define(["app"], function(CWApp) {
       }
     });
 
-    var executeAction = function(action, arg) {
+    var executeAction = function(action, args) {
       CWApp.startSubApp("UserApp");
-      action(arg);
+      action(args);
       CWApp.execute("set:active:header", null);
     };
 
@@ -45,18 +45,32 @@ define(["app"], function(CWApp) {
       userProfile: function(userModel) {
         require(["apps/user/profile/profile_controller"], function(ProfileController) {
           if(userModel instanceof Backbone.Model) {
-            executeAction(ProfileController.show, userModel);
+            executeAction(ProfileController.show, { user: userModel });
           }
           // We have come from the URL route
           else {
             var model = CWApp.activeSession.user;
             if(model.get("username") === userModel) {
-              executeAction(ProfileController.show, model);
+              executeAction(ProfileController.show, { user: model });
             }
             else {
-              executeAction(ProfileController.show, null);
+              executeAction(ProfileController.show, { user: null });
             }
           }
+        });
+      },
+      publicProfile: function(username) {
+        require(["apps/user/profile/profile_controller", "entities/common"], function(ProfileController, CommonEntities) {
+          var user = new CommonEntities.User({ username: username });
+          console.log(user);
+          user.fetch({
+            success: function(result) {
+              executeAction(ProfileController.show, { user: result, isPublic: true });
+            },
+            error: function() {
+              executeAction(ProfileController.show, { user: null, isPublic: true });
+            }
+          });
         });
       }
     };
@@ -79,6 +93,10 @@ define(["app"], function(CWApp) {
       else {
         CWApp.trigger("user:login:show");
       }
+    });
+
+    CWApp.on("user:public:profile", function(username) {
+      API.publicProfile(username);
     });
 
     CWApp.addInitializer(function() {
