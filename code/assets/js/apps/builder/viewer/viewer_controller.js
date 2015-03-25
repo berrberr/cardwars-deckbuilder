@@ -10,8 +10,11 @@ define(["app", "apps/builder/viewer/viewer_view"], function(CWApp, ViewerView) {
             var decksView = new ViewerView.Decks({ collection: decks });
 
             decksView.on("childview:view:deck", function(childView) {
-              console.log(childView.model);
               CWApp.trigger("view:deck:model", childView.model);
+            });
+
+            decksView.on("childview:view:user", function(childView) {
+              CWApp.trigger("user:public:profile", childView.model.get("author"));
             });
 
             CWApp.mainRegion.show(decksView);

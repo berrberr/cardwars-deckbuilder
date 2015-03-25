@@ -22,6 +22,7 @@ var keys = new Keygrip([config.cookieSecret]);
 
 var userSchema = new mongoose.Schema({
   username: String,
+  username_lower: { type: String, lowercase: true },
   password: String,
   auth_token: String
 });
@@ -101,6 +102,7 @@ app.post("/auth/signup", function(req, res) {
       if(result.length < 1) {
         var newUser = new User({
           username: req.body.username,
+          username_lower: req.body.username,
           password: bcrypt.hashSync(req.body.password, 8),
           auth_token: bcrypt.genSaltSync(8)
         });
@@ -130,7 +132,7 @@ app.post("/auth/signup", function(req, res) {
 app.post("/auth/login", function(req, res) {
   console.log(req.body);
   if(req.body && req.body.username && req.body.password) {
-    User.findOne({ username: req.body.username }, function(err, result) {
+    User.findOne({ username_lower: req.body.username.toLowerCase() }, function(err, result) {
       if(result) {
         if(bcrypt.compareSync(req.body.password, result.password)) {
           var cookies = new Cookies(req, res, keys);
@@ -159,7 +161,7 @@ app.post("/auth/logout", function(req, res) {
 });
 
 app.get("/users/:username", function(req, res) {
-  User.findOne({ username: req.params.username }, function(err, result) {
+  User.findOne({ username_lower: req.params.username.toLowerCase() }, function(err, result) {
     if(result && result.username) {
       res.send({
         username: result.username

@@ -96,6 +96,7 @@ define(["app"], function(CWApp) {
     });
 
     CWApp.on("user:public:profile", function(username) {
+      CWApp.navigate("profile/" + username);
       API.publicProfile(username);
     });
 

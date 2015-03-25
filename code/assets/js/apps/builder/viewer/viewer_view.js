@@ -53,7 +53,8 @@ function(CWApp, CommonViews, BuilderViews, listTpl, listItemTpl, deckLayoutTpl, 
       tagName: "tr",
 
       triggers: {
-        "click a": "view:deck"
+        "click a.js-deck": "view:deck",
+        "click a.js-user": "view:user"
       }
     });
 
