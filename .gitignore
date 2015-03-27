@@ -5,3 +5,4 @@ server/public/
 node_modules/
 code/assets/sass/vendor/
 code/assets/js/vendor/
+scraper/data/

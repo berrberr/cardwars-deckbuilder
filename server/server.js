@@ -42,6 +42,7 @@ var cardSchema = new mongoose.Schema({
   color: String,
   cost: String,
   def: String,
+  thumb: String,
   image: String,
   name: String,
   text: String,
