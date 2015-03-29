@@ -4,3 +4,24 @@ $icon-font-path: "../fonts/vendor/bootstrap/";
 body {
   margin-top: 60px;
 }
+
+.builder-colors {
+  li {
+    display: inline;
+    img {
+      width: 50px;
+      height: 50px;
+      margin: 5px;
+    }
+  }
+}
+
+.builder-tbl-card {
+  td {
+    img {
+      width: 200px;
+      height: 277px;
+      padding: 10px;
+    }
+  }
+}

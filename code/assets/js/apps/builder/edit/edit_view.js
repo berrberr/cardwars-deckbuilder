@@ -35,7 +35,7 @@ function(CWApp, BuilderViews, layoutTpl, cardListTpl, cardTpl, deckListTpl, deck
       },
 
       events: {
-        "click #colors a": "colorChange"
+        "click #colors img": "colorChange"
       },
 
       colorChange: function(e) {
