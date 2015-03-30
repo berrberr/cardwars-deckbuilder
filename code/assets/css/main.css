@@ -5622,16 +5622,33 @@ button.close {
 body {
   margin-top: 60px; }
 
-.builder-colors li {
-  display: inline; }
-  .builder-colors li img {
-    width: 50px;
-    height: 50px;
-    margin: 5px; }
+.builder-colors ul {
+  margin: 0 0 10px 0;
+  padding: 0 0 0 30px; }
+  .builder-colors ul li {
+    display: inline; }
+    .builder-colors ul li img {
+      width: 50px;
+      height: 50px;
+      margin: 5px; }
 
-.builder-tbl-card td img {
-  width: 200px;
-  height: 277px;
-  padding: 10px; }
+.builder-card-container {
+  border: 1px solid black; }
+  .builder-card-container #previous-page > span {
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    font-size: 30px; }
+  .builder-card-container #next-page > span {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    font-size: 30px; }
+  .builder-card-container .builder-tbl-card {
+    margin: 0 30px 0 30px; }
+    .builder-card-container .builder-tbl-card td img {
+      width: 200px;
+      height: 277px;
+      padding: 10px; }
 
 /*# sourceMappingURL=main.css.map */
