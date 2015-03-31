@@ -2,10 +2,8 @@ define(["app",
         "apps/builder/common/views",
         "tpl!apps/builder/edit/templates/layout.tpl",
         "tpl!apps/builder/edit/templates/card_list.tpl",
-        "tpl!apps/builder/edit/templates/card.tpl",
-        "tpl!apps/builder/edit/templates/deck_list.tpl",
-        "tpl!apps/builder/edit/templates/deck_list_item.tpl"],
-function(CWApp, BuilderViews, layoutTpl, cardListTpl, cardTpl, deckListTpl, deckListItemTpl) {
+        "tpl!apps/builder/edit/templates/deck_list.tpl"],
+function(CWApp, BuilderViews, layoutTpl, cardListTpl, deckListTpl) {
   CWApp.module("BuilderApp.Edit", function(Edit, CWApp, 
           Backbone, Marionette, $, _) {
 
@@ -38,6 +36,10 @@ function(CWApp, BuilderViews, layoutTpl, cardListTpl, cardTpl, deckListTpl, deck
         "click #colors img": "colorChange"
       },
 
+      collectionEvents: {
+        "reset": "render"
+      },
+
       colorChange: function(e) {
         e.preventDefault();
         if(e.target.getAttribute("data-color") === "All") {
@@ -65,7 +67,7 @@ function(CWApp, BuilderViews, layoutTpl, cardListTpl, cardTpl, deckListTpl, deck
       editable: true,
 
       triggers: {
-        "click span.remove": "deck:card:remove"
+        "click": "deck:card:remove"
       },
 
       modelEvents: {
@@ -77,6 +79,7 @@ function(CWApp, BuilderViews, layoutTpl, cardListTpl, cardTpl, deckListTpl, deck
       template: deckListTpl,
       childView: Edit.DeckListItem,
       childViewContainer: "ul",
+
       initialize: function() {
         console.log(this.model);
         console.log(this.collection);

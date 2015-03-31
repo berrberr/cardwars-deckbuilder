@@ -16,6 +16,12 @@ function(CWApp, Marionette, _, cardTpl, deckListItemTpl) {
     template: deckListItemTpl,
     tagName: "li",
 
+    attributes: function() {
+      return {
+        "class": "deck-item " + this.model.get("color").toLowerCase().replace(" ", "")
+      };
+    },
+
     serializeData: function () {
       return _.extend(this.model.toJSON(), { editable: Marionette.getOption(this, "editable") });
     }

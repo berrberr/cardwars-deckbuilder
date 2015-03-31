@@ -56,10 +56,12 @@ define(["app", "apps/builder/edit/edit_view"], function(CWApp, EditView) {
 
               cardListView.on("cards:color:reset", function() {
                 filteredCards.resetFilters();
+                filteredCards.setPage(0);
               });
 
               cardListView.on("cards:color:change", function(filterColor) {
                 filteredCards.filterBy({ color: filterColor });
+                filteredCards.setPage(0);
               });
 
               cardListView.on("cards:page:next", function() {

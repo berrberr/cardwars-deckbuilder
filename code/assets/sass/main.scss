@@ -1,17 +1,40 @@
 $icon-font-path: "../fonts/vendor/bootstrap/";
+$navbar-inverse-bg: #5E948A;
+$navbar-inverse-color: #FFFFFF;
+$navbar-inverse-link-color: #FFFFFF;
+$navbar-inverse-link-hover-color: darken(#FFF, 15%);
+$navbar-inverse-link-active-bg: #297364;
+
 @import "vendor/bootstrap/_bootstrap.scss";
 
 body {
   margin-top: 60px;
 }
 
+.builder-div {
+  background-color: #667B99;
+  border: 2px solid #4B6489;
+  border-radius: 10px;
+}
+
+.builder-landscapes {
+  @extend .builder-div;
+}
+
 .builder-colors {
+  @extend .builder-div;
+  margin-bottom: 10px;
+
   ul {
-    margin: 0 0 10px 0;
+    margin: 0;
     padding: 0 0 0 30px;
     li {
+      vertical-align: middle;
       display: inline;
       img {
+        &:hover {
+          opacity: .6;
+        }
         width: 50px;
         height: 50px;
         margin: 5px;
@@ -21,18 +44,22 @@ body {
 }
 
 .builder-card-container {
-  border: 1px solid black;
-  #previous-page > span {
+  @extend .builder-div;
+
+  .btn-arrow {
+    &:hover {
+      opacity: .6;
+    }
     position: absolute;
-    left: 5px;
     top: 50%;
     font-size: 30px;
+    color: #A7B1C1;
+  }
+  #previous-page > span {
+    left: 5px;
   }
   #next-page > span {
-    position: absolute;
     right: 5px;
-    top: 50%;
-    font-size: 30px;
   }
 
   .builder-tbl-card {
@@ -46,3 +73,38 @@ body {
     }
   }
 }
+
+.deck-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  .deck-item {
+    border: 1px solid black;
+    margin: 1px 0 1px 0;
+    width: 250px;
+
+    .deck-item-text {
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-block;
+      padding: 5px;
+    }
+
+    .deck-item-quantity {
+      display: inline-block;
+      padding: 5px 10px 5px 10px;
+      float: right;
+      background-color: #314D76;
+      color: #FFFFFF;
+    }
+  } 
+}
+
+/** Card Colors **/
+.blueplains { background-color: #8ED8F8; }
+.cornfield { background-color: #BBC559; }
+.nicelands { background-color: #D4D4B1; }
+.rainbow { background-color: #94D2EE; }
+.sandylands { background-color: #E1CA9E; }
+.uselessswamp { background-color: #7E7A71; }
