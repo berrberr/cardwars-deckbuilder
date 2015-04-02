@@ -11,6 +11,8 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
       name: "New Deck",
       author: "Guest",
       description: "",
+      hero: "",
+      landscapes: ["blueplains", "cornfield", "uselessswamp", "sandylands"],
       cards: []
     },
 
@@ -67,6 +69,21 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
     }
   });
 
+  Entities.Hero = Backbone.Model.extend({
+    urlRoot: CWApp.API + "/heroes",
+    idAttribute: "_id",
+
+    defaults: {
+      name: "",
+      image: ""
+    }
+  });
+
+  Entities.HeroCollection = Backbone.Collection.extend({
+    url: CWApp.API + "/heroes",
+    model: Entities.Hero
+  });
+
   var API = {
     getDeckEntities: function() {
       var decks = new Entities.DeckCollection();
@@ -85,10 +102,16 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
 
     getDeckEntity: function(deckId) {
       var deck = new Entities.Deck({ _id: deckId });
+      var heroes = new Entities.HeroCollection();
       var defer = $.Deferred();
       deck.fetch({
         success: function(data) {
-          defer.resolve(data);
+          heroes.fetch({
+            success: function(heroData) {
+              data.set("heroes", heroData);
+              defer.resolve(data);
+            }
+          });
         },
         error: function() {
           defer.resolve(undefined);
@@ -124,6 +147,21 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
         });
 
       return defer.promise();
+    },
+
+    getHeroEntities: function() {
+      var heroes = new Entities.HeroCollection();
+      var defer = $.Deferred();
+      heroes.fetch({
+        success: function(data) {
+          defer.resolve(data);
+        },
+        error: function() {
+          defer.resolve(undefined);
+        }
+      });
+
+      return defer.promise();
     }
   };
 
@@ -145,6 +183,14 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
 
   CWApp.reqres.setHandler("deck:entity:slug", function(slug) {
     return API.getDeckSubresource({ path: "slug", param: slug });
+  });
+
+  CWApp.reqres.setHandler("hero:entities", function() {
+    return API.getHeroEntities();
+  });
+
+  CWApp.reqres.setHandler("hero:entity:new", function() {
+    return new Entities.Hero();
   });
 
   return Entities;

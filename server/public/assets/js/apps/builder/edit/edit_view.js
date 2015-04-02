@@ -2,8 +2,14 @@ define(["app",
         "apps/builder/common/views",
         "tpl!apps/builder/edit/templates/layout.tpl",
         "tpl!apps/builder/edit/templates/card_list.tpl",
-        "tpl!apps/builder/edit/templates/deck_list.tpl"],
-function(CWApp, BuilderViews, layoutTpl, cardListTpl, deckListTpl) {
+        "tpl!apps/builder/edit/templates/deck_list.tpl",
+        "tpl!apps/builder/edit/templates/card_layout.tpl",
+        "tpl!apps/builder/edit/templates/landscape_hero.tpl",
+        "tpl!apps/builder/edit/templates/landscape.tpl",
+        "tpl!apps/builder/edit/templates/heroes.tpl",
+        "tpl!apps/builder/edit/templates/hero_item.tpl"],
+function(CWApp, BuilderViews, layoutTpl, cardListTpl, deckListTpl, 
+  cardLayoutTpl, landscapeHeroLayoutTpl, landscapeTpl, heroesTpl, heroItemTpl) {
   CWApp.module("BuilderApp.Edit", function(Edit, CWApp, 
           Backbone, Marionette, $, _) {
 
@@ -13,6 +19,15 @@ function(CWApp, BuilderViews, layoutTpl, cardListTpl, deckListTpl) {
       regions: {
         cardsRegion: "#cards-region",
         deckRegion: "#deck-region"
+      }
+    });
+
+    Edit.CardLayout = Marionette.LayoutView.extend({
+      template: cardLayoutTpl,
+
+      regions: {
+        cardListRegion: "#card-list-region",
+        landscapeRegion: "#landscape-region"
       }
     });
 
@@ -63,6 +78,41 @@ function(CWApp, BuilderViews, layoutTpl, cardListTpl, deckListTpl) {
       }
     });
 
+    Edit.Landscapes = Marionette.ItemView.extend({
+      template: landscapeTpl,
+      className: "panel-body"
+    });
+
+    Edit.Hero = Marionette.ItemView.extend({
+      template: heroItemTpl,
+      className: "hero-image",
+
+      triggers: {
+        "click a": "hero:set"
+      }
+    });
+
+    Edit.Heroes = Marionette.CompositeView.extend({
+      template: heroesTpl,
+      childView: Edit.Hero,
+      childViewContainer: "#edit-heroes",
+      className: "panel-body",
+
+      heroChange: function() {
+        this.$el.find("#changeHero").toggleClass("in");
+        this.render();
+      }
+    });
+
+    Edit.LandscapeHeroLayout = Marionette.LayoutView.extend({
+      template: landscapeHeroLayoutTpl,
+
+      regions: {
+        "landscapeRegion": "#collapseLandscapes",
+        "heroesRegion": "#collapseHero"
+      }
+    });
+
     Edit.DeckListItem = BuilderViews.DeckListItem.extend({
       editable: true,
 
@@ -77,13 +127,9 @@ function(CWApp, BuilderViews, layoutTpl, cardListTpl, deckListTpl) {
 
     Edit.DeckList = Marionette.CompositeView.extend({
       template: deckListTpl,
+      className: "deck-container",
       childView: Edit.DeckListItem,
       childViewContainer: "ul",
-
-      initialize: function() {
-        console.log(this.model);
-        console.log(this.collection);
-      },
 
       ui: {
         deckName: "#deck-name",

@@ -31,6 +31,8 @@ var deckSchema = new mongoose.Schema({
   name: String,
   author: String,
   cards: Array,
+  landscapes: Array,
+  hero: String,
   description: String,
   updated: { type: Date, default: Date.now }
 });
@@ -50,9 +52,15 @@ var cardSchema = new mongoose.Schema({
   updated: { type: Date, default: Date.now }
 });
 
+var heroesSchema = new mongoose.Schema({
+  name: String,
+  image: String
+});
+
 var Card = mongoose.model("Card", cardSchema);
 var Deck = mongoose.model("Deck", deckSchema);
 var User = mongoose.model("User", userSchema);
+var Heroes = mongoose.model("Heroes", heroesSchema);
 
 /**
  * Attempts to get the active user from a request's cookies
@@ -213,6 +221,8 @@ app.put("/decks/:id", function(req, res) {
                 author: req.body.author,
                 description: req.body.description,
                 cards: req.body.cards,
+                landscapes: req.body.landscapes,
+                hero: req.body.hero,
                 updated: Date.now()
               }, function(err, result) {
                 if(err) {
@@ -265,6 +275,19 @@ app.get("/cards/:id?", function(req, res) {
   }
   else {
     Card.find({}, function(err, result) {
+      res.send(result);
+    });
+  }
+});
+
+app.get("/heroes/:id?", function(req, res) {
+  if(req.params.id) {
+    Heroes.findOne({ _id: ObjectID(req.params.id) }, function(err, result) {
+      res.send(result);
+    });
+  }
+  else {
+    Heroes.find({}, function(err, result) {
       res.send(result);
     });
   }

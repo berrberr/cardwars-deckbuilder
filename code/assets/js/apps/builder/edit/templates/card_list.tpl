@@ -1,7 +1,3 @@
-<div id="landscapes" class="row builder-landscapes">
-  <h2>Landscapes</h2>
-</div>
-
 <div id="colors" class="row builder-colors">
   <ul>
     <li><a href="#"><img src="assets/img/color_icons/blueplains.png" alt="Blue Plains" data-color="Blue Plains"></a></li>

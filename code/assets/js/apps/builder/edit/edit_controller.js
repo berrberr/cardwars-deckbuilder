@@ -12,20 +12,43 @@ define(["app", "apps/builder/edit/edit_view"], function(CWApp, EditView) {
               filteredCards.setPerPage(4);
 
               var layoutView = new EditView.Layout();
+              var cardLayoutView = new EditView.CardLayout();
               var deckListView = new EditView.DeckList({ model: deck, collection: deckCardsCollection });
               var cardListView = new EditView.CardList({ collection: filteredCards });
+              var landscapeHeroLayout = new EditView.LandscapeHeroLayout();
+              var selectedHero = deck.get("heroes").findWhere({ _id: deck.get("hero") });
+              selectedHero = selectedHero || CWApp.request("hero:entity:new");
+              var heroesView = new EditView.Heroes({
+                model: selectedHero,
+                collection: deck.get("heroes")
+              });
 
               layoutView.on("show", function() {
-                layoutView.cardsRegion.show(cardListView);
+                layoutView.cardsRegion.show(cardLayoutView);
                 layoutView.deckRegion.show(deckListView);
               });
 
-              cardListView.on("childview:deck:card:add", function(childView) {
-                deckCardsCollection.add(childView.model.toJSON());
+              cardLayoutView.on("show", function() {
+                cardLayoutView.cardListRegion.show(cardListView);
+                cardLayoutView.landscapeRegion.show(landscapeHeroLayout);
               });
 
-              deckListView.on("childview:deck:card:remove", function(childView) {
-                deckCardsCollection.remove(childView.model);
+              landscapeHeroLayout.on("show", function() {
+                landscapeHeroLayout.landscapeRegion.show(new EditView.Landscapes(
+                  new Backbone.Model({ "landscapes": deck.get("landscapes") })));
+                landscapeHeroLayout.heroesRegion.show(heroesView);
+              });
+
+              heroesView.on("childview:hero:set", function(childView) {
+                deck.set("hero", childView.model.id);
+
+                // Update the selected hero which will update the view
+                var newHero = deck.get("heroes").findWhere({ _id: deck.get("hero") });
+                selectedHero.set(newHero.toJSON());
+                heroesView.heroChange();
+
+                // Trigger a deck save on hero change
+                deckListView.trigger("deck:save");
               });
 
               deckListView.on("deck:save", function() {
@@ -50,8 +73,19 @@ define(["app", "apps/builder/edit/edit_view"], function(CWApp, EditView) {
               });
 
               deckListView.on("deck:name:update", function(newName) {
-                console.log("update title: ", newName);
                 deck.set("name", newName);
+
+                // Trigger a deck save on title change
+                deckListView.trigger("deck:save");
+
+              });
+
+              cardListView.on("childview:deck:card:add", function(childView) {
+                deckCardsCollection.add(childView.model.toJSON());
+              });
+
+              deckListView.on("childview:deck:card:remove", function(childView) {
+                deckCardsCollection.remove(childView.model);
               });
 
               cardListView.on("cards:color:reset", function() {
