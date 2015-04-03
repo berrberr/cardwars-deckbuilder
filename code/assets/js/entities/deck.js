@@ -114,6 +114,7 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
           });
         },
         error: function() {
+          console.log("get deck failed......");
           defer.resolve(undefined);
         }
       });

@@ -20,6 +20,7 @@ define(["app"], function(CWApp) {
       appRoutes: {
         "build": "emptyBuild",
         "build/new": "newDeckBuild",
+        "build/edit/guest": "guestEditDeck",
         "build/edit/:id": "editDeckBuild",
         "view(/)": "viewDeck",
         "view/:slug": "viewDeck"
@@ -53,6 +54,24 @@ define(["app"], function(CWApp) {
           executeAction(EditController.editDeck, id);
         });
       },
+      guestEditDeck: function(deck) {
+        require(["apps/builder/edit/edit_controller", "entities/deck"], function(EditController) {
+          var fetchingHeroes = CWApp.request("hero:entities");
+          $.when(fetchingHeroes).done(function(heroes) {
+            console.log("fetched heroes: ", heroes);
+            if(deck) {
+              deck.set("heroes", heroes);
+              executeAction(EditController.guestEditDeck, deck);
+            }
+            else {
+              $.when(CWApp.activeSession.getCachedDeck()).done(function(cachedDeck) {
+                cachedDeck.set("heroes", heroes);
+                executeAction(EditController.guestEditDeck, cachedDeck);
+              });
+            }
+          });
+        });
+      },
       viewDeck: function(slug) {
         require(["apps/builder/viewer/viewer_controller"], function(ViewerController) {
           if(slug) {
@@ -78,6 +97,11 @@ define(["app"], function(CWApp) {
     CWApp.on("build:deck:edit", function(id) {
       CWApp.navigate("build/edit/" + id);
       API.editDeckBuild(id);
+    });
+
+    CWApp.on("build:deck:edit:guest", function(deck) {
+      CWApp.navigate("build/edit/guest");
+      API.guestEditDeck(deck);
     });
 
     CWApp.on("build:deck:list", function() {

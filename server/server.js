@@ -28,7 +28,7 @@ var userSchema = new mongoose.Schema({
 });
 
 var deckSchema = new mongoose.Schema({
-  name: String,
+  name: { type: String, required: true },
   author: String,
   cards: Array,
   landscapes: Array,
@@ -36,7 +36,7 @@ var deckSchema = new mongoose.Schema({
   description: String,
   updated: { type: Date, default: Date.now }
 });
-deckSchema.plugin(URLSlugs("name"));
+deckSchema.plugin(URLSlugs("name", { update: true }));
 
 var cardSchema = new mongoose.Schema({
   ability: String,
@@ -216,21 +216,25 @@ app.put("/decks/:id", function(req, res) {
             console.log(user);
             // Current user must be author of deck & also match the author in request param
             if(result.author === user.username && req.body.author === user.username) {
-              Deck.findOneAndUpdate({ _id: ObjectID(req.body._id) }, {
-                name: req.body.name,
-                author: req.body.author,
-                description: req.body.description,
-                cards: req.body.cards,
-                landscapes: req.body.landscapes,
-                hero: req.body.hero,
-                updated: Date.now()
-              }, function(err, result) {
-                if(err) {
-                  sendError(res, err);
-                }
-                else {
-                  res.send(result);
-                }
+              Deck.findOne({ _id: ObjectID(req.body._id) }, function(err, doc) {
+                if(err) return sendError(res, err);
+                
+                doc.name = req.body.name;
+                doc.author = req.body.author;
+                doc.description = req.body.description;
+                doc.cards = req.body.cards;
+                doc.landscapes = req.body.landscapes;
+                doc.hero = req.body.hero;
+                doc.updated = Date.now();
+
+                doc.save(function(err, result) {
+                  if(err) {
+                    sendError(res, err);
+                  }
+                  else {
+                    res.send(result);
+                  }
+                });
               });
             }
             else {

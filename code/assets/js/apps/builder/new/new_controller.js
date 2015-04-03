@@ -8,13 +8,21 @@ define(["app"], function(CWApp) {
           var author = CWApp.activeSession.get("loggedIn") ?
             CWApp.activeSession.get("username") : "Guest";
           newDeck.set({ name: "Untitled Deck", author: author });
-          console.log(newDeck);
-          newDeck.save(null, {
+
+          CWApp.activeSession.checkAuth({
             success: function() {
-              CWApp.trigger("build:deck:edit", newDeck.id);
+              newDeck.save(null, {
+                success: function() {
+                  CWApp.trigger("build:deck:edit", newDeck.id);
+                },
+                error: function() {
+                  console.log("Something went wrong!");
+                }
+              });
             },
             error: function() {
-              console.log("Something went wrong!");
+              CWApp.activeSession.cacheDeck(newDeck);
+              CWApp.trigger("build:deck:edit:guest", newDeck);
             }
           });
         });

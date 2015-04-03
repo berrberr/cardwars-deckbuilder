@@ -20,15 +20,50 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
 
     defaults: {
       loggedIn: false,
-      username: null
+      username: null,
+      cachedDeck: null
     },
 
     initialize: function() {
       this.user = new Entities.User({});
+      this.restoreSession();
     },
 
     updateUser: function(userData) {
       this.user.set(_.pick(userData, _.keys(this.user.defaults)));
+    },
+
+    restoreSession: function() {
+      this.set(JSON.parse(localStorage.getItem("cardwars-session")));
+    },
+
+    saveSession: function() {
+      localStorage.setItem("cardwars-session", JSON.stringify(this.toJSON()));
+    },
+
+    clearSession: function() {
+      localStorage.removeItem("cardwars-session");
+    },
+
+    cacheDeck: function(deck) {
+      if(deck) {
+        this.set("cachedDeck", deck);
+        this.saveSession();
+      }
+    },
+
+    getCachedDeck: function() {
+      var defer = $.Deferred();
+      var cachedDeckData = this.get("cachedDeck");
+      
+      require(["entities/deck"], function() {
+        var deck = CWApp.request("deck:entity:new");
+        deck.set(cachedDeckData);
+
+        defer.resolve(deck);
+      });
+
+      return defer.promise();
     },
 
     checkAuth: function(callback, args) {
@@ -97,6 +132,7 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
     },
 
     logout: function(opts, callback, args) {
+      this.clearSession();
       this.postAuth(_.extend(opts, { method: "logout" }), callback, args);
     },
 

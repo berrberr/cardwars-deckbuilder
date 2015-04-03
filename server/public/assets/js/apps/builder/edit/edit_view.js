@@ -80,7 +80,18 @@ function(CWApp, BuilderViews, layoutTpl, cardListTpl, deckListTpl,
 
     Edit.Landscapes = Marionette.ItemView.extend({
       template: landscapeTpl,
-      className: "panel-body"
+      className: "panel-body",
+
+      events: {
+        "change .js-landscape-select": "changeLandscape"
+      },
+
+      changeLandscape: function(e) {
+        this.trigger("landscape:change", {
+          id: e.target.getAttribute("data-index"),
+          landscape: e.target.value
+        });
+      }
     });
 
     Edit.Hero = Marionette.ItemView.extend({
@@ -170,7 +181,7 @@ function(CWApp, BuilderViews, layoutTpl, cardListTpl, deckListTpl,
       },
 
       flash: function(message, style) {
-        this.ui.flash.removeClass("hidden").addClass(style).text(message);
+        this.ui.flash.removeClass("hidden").addClass(style).text(message).fadeOut(2000);
       }
     });
   });

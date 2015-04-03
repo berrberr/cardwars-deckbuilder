@@ -7,6 +7,21 @@ $navbar-inverse-link-active-bg: #297364;
 
 @import "vendor/bootstrap/_bootstrap.scss";
 
+@mixin card-border($border-size, $card-width, $card-height) {
+  border: $border-size solid black;
+  border-radius: 5px;
+  width: $card-width - $border-size;
+  height: $card-height - $border-size;
+  overflow: hidden;
+
+  img {
+    display: block;
+    margin: -$border-size;
+    width: $card-width;
+    height: $card-height;
+  }
+}
+
 body {
   margin-top: 60px;
 }
@@ -33,20 +48,9 @@ body {
 
   .base-hero-image {
     margin: 5px;
-    border: 3px solid black;
-    border-radius: 5px;
-    width: 187px;
-    height: 254px;
-    overflow: hidden;
     display: inline-block;
     position: relative;
-
-    img {
-      display: block;
-      margin: -3px;
-      width: 190px;
-      height: 257px;
-    }
+    @include card-border(3px, 190px, 257px);
   }
 
   .hero-image {
@@ -75,7 +79,7 @@ body {
 
     .hero-image {
       @extend .base-hero-image;
-      
+
       &:hover .overlay {
         display: inline;
         opacity: 1;
@@ -116,13 +120,15 @@ body {
 
 .builder-card-container {
   @extend .builder-div;
+  min-height: 590px;
 
   .btn-arrow {
     &:hover {
       opacity: .6;
     }
     position: absolute;
-    top: 50%;
+    top: 380px;
+    bottom: 0;
     font-size: 30px;
     color: #A7B1C1;
   }
@@ -138,18 +144,7 @@ body {
     td {
       .wrap {
         margin: 10px;
-        border: 3px solid black;
-        border-radius: 5px;
-        width: 197px;
-        height: 274px;
-        overflow: hidden;
-
-        img {
-          display: block;
-          margin: -3px;
-          width: 200px;
-          height: 277px;
-        }
+        @include card-border(3px, 200px, 277px);
       }
     }
   }
@@ -177,6 +172,11 @@ body {
     margin: 1px 0 1px 0;
     width: 250px;
 
+    a {
+      display: block;
+      color: #000000;
+    }
+
     .deck-item-text {
       font-size: 14px;
       font-weight: 500;
@@ -190,6 +190,16 @@ body {
       float: right;
       background-color: #314D76;
       color: #FFFFFF;
+    }
+
+    .deck-item-card-hover {
+      @include card-border(4px, 360px, 510px);
+      visibility: hidden;
+      position: fixed;
+
+      &.active {
+        visibility: visible;
+      }
     }
   } 
 }

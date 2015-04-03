@@ -16,6 +16,36 @@ function(CWApp, Marionette, _, cardTpl, deckListItemTpl) {
     template: deckListItemTpl,
     tagName: "li",
 
+    ui: {
+      cardHover: ".deck-item-card-hover"
+    },
+
+    events: {
+      "mouseenter": "showCard",
+      "mouseleave": "hideCard",
+      "mousemove": "moveCard"
+    },
+
+    showCard: function(e) {
+      this.ui.cardHover
+        .addClass("active")
+        .css({
+          top: e.clientY,
+          left: e.clientX - 400
+        });
+    },
+
+    moveCard: function(e) {
+      this.ui.cardHover.css({
+        top: e.clientY,
+        left: e.clientX - 400
+      });
+    },
+
+    hideCard: function() {
+      this.ui.cardHover.removeClass("active");
+    },
+
     attributes: function() {
       return {
         "class": "deck-item " + this.model.get("color").toLowerCase().replace(" ", "")
