@@ -4,12 +4,13 @@ define(["app",
         "tpl!apps/builder/edit/templates/card_list.tpl",
         "tpl!apps/builder/edit/templates/deck_list.tpl",
         "tpl!apps/builder/edit/templates/card_layout.tpl",
-        "tpl!apps/builder/edit/templates/landscape_hero.tpl",
+        "tpl!apps/builder/edit/templates/header.tpl",
         "tpl!apps/builder/edit/templates/landscape.tpl",
         "tpl!apps/builder/edit/templates/heroes.tpl",
-        "tpl!apps/builder/edit/templates/hero_item.tpl"],
+        "tpl!apps/builder/edit/templates/hero_item.tpl",
+        "tpl!apps/builder/edit/templates/export_save.tpl"],
 function(CWApp, BuilderViews, layoutTpl, cardListTpl, deckListTpl, 
-  cardLayoutTpl, landscapeHeroLayoutTpl, landscapeTpl, heroesTpl, heroItemTpl) {
+  cardLayoutTpl, headerTpl, landscapeTpl, heroesTpl, heroItemTpl, exportSaveTpl) {
   CWApp.module("BuilderApp.Edit", function(Edit, CWApp, 
           Backbone, Marionette, $, _) {
 
@@ -115,12 +116,22 @@ function(CWApp, BuilderViews, layoutTpl, cardListTpl, deckListTpl,
       }
     });
 
-    Edit.LandscapeHeroLayout = Marionette.LayoutView.extend({
-      template: landscapeHeroLayoutTpl,
+    Edit.ExportSave = Marionette.ItemView.extend({
+      template: exportSaveTpl,
+      className: "panel-body",
+
+      triggers: {
+        "click #save-btn": "deck:save"
+      }
+    });
+
+    Edit.Header = Marionette.LayoutView.extend({
+      template: headerTpl,
 
       regions: {
         "landscapeRegion": "#collapseLandscapes",
-        "heroesRegion": "#collapseHero"
+        "heroesRegion": "#collapseHero",
+        "saveRegion": "#collapseSave"
       }
     });
 
@@ -156,10 +167,6 @@ function(CWApp, BuilderViews, layoutTpl, cardListTpl, deckListTpl,
         "click @ui.deckName": "editName",
         "blur @ui.deckNameInput": "updateName",
         "keypress @ui.deckNameInput": "keypressUpdateName"
-      },
-
-      triggers: {
-        "click #save-deck": "deck:save"
       },
 
       editName: function() {

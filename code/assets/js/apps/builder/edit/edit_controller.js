@@ -20,8 +20,8 @@ define(["app", "apps/builder/edit/edit_view"], function(CWApp, EditView) {
           var cardLayoutView = new EditView.CardLayout();
           var cardListView = new EditView.CardList({ collection: filteredCards });
 
-          /** Landscape/hero div **/
-          var landscapeHeroLayout = new EditView.LandscapeHeroLayout();
+          /** Landscape/hero/save div **/
+          var headerLayout = new EditView.Header();
           var selectedHero = deck.get("heroes").findWhere({ _id: deck.get("hero") });
           selectedHero = selectedHero || CWApp.request("hero:entity:new");
           var heroesView = new EditView.Heroes({
@@ -31,6 +31,7 @@ define(["app", "apps/builder/edit/edit_view"], function(CWApp, EditView) {
           var landscapeView = new EditView.Landscapes({
             model: new Backbone.Model({ "landscapes": deck.get("landscapes") })
           });
+          var saveView = new EditView.ExportSave();
 
           layoutView.on("show", function() {
             layoutView.cardsRegion.show(cardLayoutView);
@@ -39,12 +40,13 @@ define(["app", "apps/builder/edit/edit_view"], function(CWApp, EditView) {
 
           cardLayoutView.on("show", function() {
             cardLayoutView.cardListRegion.show(cardListView);
-            cardLayoutView.landscapeRegion.show(landscapeHeroLayout);
+            cardLayoutView.landscapeRegion.show(headerLayout);
           });
 
-          landscapeHeroLayout.on("show", function() {
-            landscapeHeroLayout.landscapeRegion.show(landscapeView);
-            landscapeHeroLayout.heroesRegion.show(heroesView);
+          headerLayout.on("show", function() {
+            headerLayout.landscapeRegion.show(landscapeView);
+            headerLayout.heroesRegion.show(heroesView);
+            headerLayout.saveRegion.show(saveView);
           });
 
           landscapeView.on("landscape:change", function(val) {
@@ -54,7 +56,7 @@ define(["app", "apps/builder/edit/edit_view"], function(CWApp, EditView) {
               deck.set("landscapes", landscapes);
 
               // Save deck on landscape select change
-              deckListView.trigger("deck:save");
+              saveView.trigger("deck:save");
             }
           });
 
@@ -67,10 +69,10 @@ define(["app", "apps/builder/edit/edit_view"], function(CWApp, EditView) {
             heroesView.heroChange();
 
             // Trigger a deck save on hero change
-            deckListView.trigger("deck:save");
+            saveView.trigger("deck:save");
           });
 
-          deckListView.on("deck:save", function() {
+          saveView.on("deck:save", function() {
             CWApp.activeSession.checkAuth({
               success: function(result) {
                 console.log("saving...");
@@ -95,7 +97,7 @@ define(["app", "apps/builder/edit/edit_view"], function(CWApp, EditView) {
             deck.set("name", newName);
 
             // Trigger a deck save on title change
-            deckListView.trigger("deck:save");
+            saveView.trigger("deck:save");
 
           });
 
