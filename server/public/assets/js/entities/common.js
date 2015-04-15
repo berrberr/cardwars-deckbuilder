@@ -43,6 +43,8 @@ define(["app", "backbone", "jquery", "underscore"], function(CWApp, Backbone, $,
 
     clearSession: function() {
       localStorage.removeItem("cardwars-session");
+      this.clear();
+      this.user.clear();
     },
 
     cacheDeck: function(deck) {
